@@ -60,6 +60,8 @@ services:
         XDEBUG_LOG: /dev/stdout
         XDEBUG_LOG_LEVEL: 0
     tty: true  # Enables an interactive terminal
+    ports:
+      - '${VITE_PORT:-5173}:5173'
     stdin_open: true  # Keeps standard input open for 'docker exec'
     env_file:
       - .env
