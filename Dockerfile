@@ -11,13 +11,16 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libwebp-dev \
     libjpeg62-turbo-dev \
-    libfreetype6-dev
+    libfreetype6-dev \
+    libpq-dev \
+    gnupg \
+    ca-certificates
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath
 RUN docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype
 RUN docker-php-ext-install -j$(nproc) gd
 
