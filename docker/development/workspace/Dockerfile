@@ -72,10 +72,14 @@ RUN export NVM_DIR="$HOME/.nvm" && \
     nvm alias default ${NODE_VERSION} && \
     nvm use default
 
-# Ensure NVM is available for all future shells
+# Ensure NVM is available for all future shells, including login shells
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/www/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/www/.bashrc && \
-    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /home/www/.bashrc
+    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /home/www/.bashrc && \
+    echo 'export NVM_DIR="$HOME/.nvm"' >> /home/www/.bash_profile && \
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/www/.bash_profile && \
+    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /home/www/.bash_profile
+
 
 # Set the working directory
 WORKDIR /var/www
