@@ -3,7 +3,7 @@ services:
         container_name: laravel-app
         build:
 #            context: ./vendor/laravel/sail/runtimes/8.3
-            context: _docker/php/8.3
+            context: local/_docker/php/8.3
             dockerfile: _docker/php/8.3/Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
