@@ -12,8 +12,6 @@ services:
       - cache:/var/www/bootstrap/cache
     networks:
       - laravel
-    depends_on:
-      - db
     healthcheck:
       test:
         - CMD
@@ -62,6 +60,4 @@ volumes:
   storage:
     driver: local
   cache:
-    driver: local
-  dbdata:
     driver: local
