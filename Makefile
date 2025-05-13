@@ -1,22 +1,26 @@
-init: add-or-pass-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-dev
-
-add-or-pass-env:
-	cp -n .env.example .env
-up:
-	docker compose up
+init: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+prepare-env:
+	@if [ ! -f .env ]; then \
+		echo "Copying .env.example to .env"; \
+		cp .env.example .env; \
+	else \
+		echo ".env already exists. Skipping."; \
+	fi
 up-detached:
-	docker compose up -d
+	docker compose -f compose.dev.yaml up -d
+up:
+	docker compose -f compose.dev.yaml up
 composer-i:
-	/bin/bash sail composer install
+	docker compose -f compose.dev.yaml exec workspace bash -c "composer install"
 migrate-fresh:
-	/bin/bash sail artisan migrate:fresh
+	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan migrate:fresh"
 seed:
-	/bin/bash sail artisan db:seed
+	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan db:seed"
 app-key-gen:
-	/bin/bash sail artisan key:generate
+	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan key:generate"
 npm-i:
-	/bin/bash sail npm i
-npm-dev:
-	/bin/bash sail npm run dev -d
+	docker compose -f compose.dev.yaml exec workspace bash -lc "npm install"
+npm-run-dev-detached:
+	docker compose -f compose.dev.yaml exec workspace bash -lc "npm run dev -d"
 down:
-	docker compose down
+	docker compose -f compose.dev.yaml down
