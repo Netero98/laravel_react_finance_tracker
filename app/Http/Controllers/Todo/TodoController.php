@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Todo;
 
 use App\Models\Todo;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
@@ -21,6 +20,15 @@ class TodoController extends Controller
     {
         $todo->completed = !$todo->completed;
         $todo->save();
+
+        return redirect()->back();
+    }
+
+    public function update(Request $request, Todo $todo)
+    {
+        $validated = $request->validate(Todo::VALIDATION_RULES);
+
+        $todo->update($validated);
 
         return redirect()->back();
     }

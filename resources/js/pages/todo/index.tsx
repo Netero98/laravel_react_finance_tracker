@@ -1,12 +1,12 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Pencil, Check } from 'lucide-react';
 
 interface Todo {
     id: number;
@@ -26,25 +26,53 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function index({ todos }: Props) {
-    const { data, setData, post, patch, delete: destroy } = useForm({
+    const initialForm = useForm({
         title: '',
         completed: false,
     });
 
+    const updateForm = useForm({
+        id: 0,
+        title: '',
+        completed: false,
+    });
+
+    const handleUpdate = (todo: Todo) => {
+        updateForm.patch(
+            `/todos/${todo.id}`,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    updateForm.setData({
+                        id: 0,
+                        title: '',
+                        completed: false,
+                    })
+                },
+            }
+        );
+    };
+
     const handleStore = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(route('todos.store'), {
+        initialForm.post(route('todos.store'), {
             preserveScroll: true,
+            onSuccess: () => {
+                initialForm.setData({
+                    title: '',
+                    completed: false,
+                });
+            },
         });
-    }
+    };
 
     const handleToggleTodo = (todo: Todo) => {
-        patch(`/todos/${todo.id}/toggle-completed`);
+        router.patch(`/todos/${todo.id}/toggle-completed`);
     };
 
     const deleteTodo = (todo: Todo) => {
-        destroy(`/todos/${todo.id}`);
+        router.delete(`/todos/${todo.id}`);
     };
 
     return (
@@ -55,8 +83,8 @@ export default function index({ todos }: Props) {
                     <form onSubmit={handleStore} className="flex gap-2">
                         <Input
                             type="text"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
+                            value={initialForm.data.title}
+                            onChange={(e) => initialForm.setData({ ...initialForm.data, title: e.target.value })}
                             placeholder="Add a new todo..."
                             className="flex-1"
                         />
@@ -67,34 +95,62 @@ export default function index({ todos }: Props) {
                 <Card className="flex flex-col gap-2 p-4">
                     <div className="flex flex-col gap-2">
                         {todos.map((todo) => (
-                        <div
-                            key={todo.id}
-                            className="flex items-center justify-between gap-2 rounded-lg border p-3"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Checkbox
-                                    checked={todo.completed}
-                                    onCheckedChange={() => handleToggleTodo(todo)}
-                                />
-                                <span
-                                    className={
-                                        todo.completed ? 'text-muted-foreground line-through' : ''
-                                    }
-                                >
-                                    {todo.title}
-                                </span>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => deleteTodo(todo)}
+                            <div
+                                key={todo.id}
+                                className="flex items-center justify-between gap-2 rounded-lg border p-3"
                             >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ))}
-    </div>
-    {todos.length === 0 && (
+                                <div className="flex items-center gap-2 flex-1">
+                                    <Checkbox
+                                        checked={todo.completed}
+                                        onCheckedChange={() => handleToggleTodo(todo)}
+                                    />
+                                    {updateForm.data.id === todo.id ? (
+                                        <Input
+                                            type="text"
+                                            value={updateForm.data.title}
+                                            onChange={(e) => updateForm.setData({ ...updateForm.data, title: e.target.value })}
+                                            className="flex-1"
+                                        />
+                                    ) : (
+                                        <span
+                                            className={
+                                                todo.completed ? 'text-muted-foreground line-through' : ''
+                                            }
+                                        >
+                                            {todo.title}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    {updateForm.data.id === todo.id ? (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleUpdate(todo)}
+                                        >
+                                            <Check className="h-4 w-4" />
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => updateForm.setData(todo)}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => deleteTodo(todo)}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {todos.length === 0 && (
                         <div className="text-center text-muted-foreground">
                             No todos yet. Add one above!
                         </div>
