@@ -34,15 +34,6 @@ class TodoController extends Controller
         return redirect()->back();
     }
 
-    public function update(Todo $todo, FormRequest $request)
-    {
-        $validated = $request->validate(Todo::VALIDATION_RULES);
-
-        $todo->update($validated);
-
-        return redirect()->back();
-    }
-
     public function destroy(Todo $todo)
     {
         $todo->delete();
