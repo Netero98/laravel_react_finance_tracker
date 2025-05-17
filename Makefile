@@ -1,4 +1,12 @@
+# Use this way: make exec cmd="php artisan migrate:fresh"
+exec:
+ifndef cmd
+	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan migrate:fresh")
+endif
+	docker compose -f compose.dev.yaml exec workspace bash -c "$(cmd)"
+
 init: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+
 prepare-env:
 	@if [ ! -f .env ]; then \
 		echo "Copying .env.example to .env"; \

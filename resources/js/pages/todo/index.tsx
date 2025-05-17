@@ -1,0 +1,106 @@
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card } from '@/components/ui/card';
+import React from 'react';
+import { X } from 'lucide-react';
+
+interface Todo {
+    id: number;
+    title: string;
+    completed: boolean;
+}
+
+interface Props {
+    todos: Todo[];
+}
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'To do',
+        href: '/todos',
+    },
+];
+
+export default function index({ todos }: Props) {
+    const { data, setData, post, patch, delete: destroy } = useForm({
+        title: '',
+        completed: false,
+    });
+
+    const handleStore = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        post(route('todos.store'), {
+            preserveScroll: true,
+        });
+    }
+
+    const handleToggleTodo = (todo: Todo) => {
+        patch(`/todos/${todo.id}/toggle-completed`);
+    };
+
+    const deleteTodo = (todo: Todo) => {
+        destroy(`/todos/${todo.id}`);
+    };
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Todo List" />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                <Card className="p-4">
+                    <form onSubmit={handleStore} className="flex gap-2">
+                        <Input
+                            type="text"
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
+                            placeholder="Add a new todo..."
+                            className="flex-1"
+                        />
+                        <Button type="submit">Add Todo</Button>
+                    </form>
+                </Card>
+
+                <Card className="flex flex-col gap-2 p-4">
+                    <div className="flex flex-col gap-2">
+                        {todos.map((todo) => (
+                        <div
+                            key={todo.id}
+                            className="flex items-center justify-between gap-2 rounded-lg border p-3"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    checked={todo.completed}
+                                    onCheckedChange={() => handleToggleTodo(todo)}
+                                />
+                                <span
+                                    className={
+                                        todo.completed ? 'text-muted-foreground line-through' : ''
+                                    }
+                                >
+                                    {todo.title}
+                                </span>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => deleteTodo(todo)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+    </div>
+    {todos.length === 0 && (
+                        <div className="text-center text-muted-foreground">
+                            No todos yet. Add one above!
+                        </div>
+                    )}
+                </Card>
+            </div>
+        </AppLayout>
+    );
+}
