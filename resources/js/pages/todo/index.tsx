@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import React from 'react';
 import { X, Pencil, Check } from 'lucide-react';
+import { PageProps } from '@inertiajs/core';
 
 interface Todo {
     id: number;
@@ -14,8 +15,19 @@ interface Todo {
     completed: boolean;
 }
 
-interface Props {
-    todos: Todo[];
+interface Props extends PageProps {
+    todos: {
+        data: Todo[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -94,7 +106,7 @@ export default function index({ todos }: Props) {
 
                 <Card className="flex flex-col gap-2 p-4">
                     <div className="flex flex-col gap-2">
-                        {todos.map((todo) => (
+                        {todos.data.map((todo) => (
                             <div
                                 key={todo.id}
                                 className="flex items-center justify-between gap-2 rounded-lg border p-3"
@@ -150,9 +162,24 @@ export default function index({ todos }: Props) {
                             </div>
                         ))}
                     </div>
-                    {todos.length === 0 && (
+                    {todos.data.length === 0 && (
                         <div className="text-center text-muted-foreground">
                             No todos yet. Add one above!
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {todos.last_page > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-4">
+                            {todos.links.map((link, i) => (
+                                <Button
+                                    key={i}
+                                    variant={link.active ? "default" : "outline"}
+                                    disabled={!link.url}
+                                    onClick={() => link.url && router.get(link.url)}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
                         </div>
                     )}
                 </Card>

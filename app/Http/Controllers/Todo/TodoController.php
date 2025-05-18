@@ -12,7 +12,7 @@ class TodoController extends Controller
     public function index()
     {
         return Inertia::render('todo/index', [
-            'todos' => Todo::orderBy('created_at', 'desc')->get()
+            'todos' => Todo::orderBy('created_at', 'desc')->paginate(10)
         ]);
     }
 
