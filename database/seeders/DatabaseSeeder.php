@@ -20,6 +20,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        Todo::factory(25)->create();
+        Todo::factory(55)->create();
     }
 }

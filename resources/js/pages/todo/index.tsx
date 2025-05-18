@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -172,16 +172,22 @@ export default function index({ todos }: Props) {
                     {todos.last_page > 1 && (
                         <div className="flex items-center justify-center gap-2 mt-4">
                             {todos.links.map((link, i) => (
-                                <Button
+                                <Link
                                     key={i}
-                                    variant={link.active ? "default" : "outline"}
-                                    disabled={!link.url}
-                                    onClick={() => link.url && router.get(link.url)}
+                                    href={link.url || ''}
+                                    className={`px-4 py-2 rounded-md ${
+                                        link.active
+                                            ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                            : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+                                    } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
+                                    preserveScroll
+                                    preserveState
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             ))}
                         </div>
                     )}
+
                 </Card>
             </div>
         </AppLayout>
