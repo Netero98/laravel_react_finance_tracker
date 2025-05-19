@@ -15,9 +15,24 @@ import { Category, BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+
+interface PaginatedData<T> {
+    data: T[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    current_page: number;
+    last_page: number;
+    from: number;
+    to: number;
+    total: number;
+}
 
 interface Props {
-    categories: Category[];
+    categories: PaginatedData<Category>;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -118,7 +133,7 @@ export default function Index({ categories }: Props) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {categories.map((category) => (
+                        {categories.data.map((category) => (
                             <TableRow key={category.id}>
                                 <TableCell>{category.name}</TableCell>
                                 <TableCell className="capitalize">{category.type}</TableCell>
@@ -143,6 +158,8 @@ export default function Index({ categories }: Props) {
                         ))}
                     </TableBody>
                 </Table>
+
+                <Pagination links={categories.links} />
             </div>
         </AppLayout>
     );

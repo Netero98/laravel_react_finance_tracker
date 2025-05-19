@@ -12,7 +12,7 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
-        $categories = Category::query()->where('user_id', auth()->id())->get();
+        $categories = Category::query()->where('user_id', auth()->id())->paginate(10);
 
         return Inertia::render('finance-tracker/categories/index', [
             'categories' => $categories

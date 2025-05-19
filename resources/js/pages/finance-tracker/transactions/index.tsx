@@ -15,9 +15,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { Pagination } from '@/components/ui/pagination';
+
+interface PaginatedData<T> {
+    data: T[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    current_page: number;
+    last_page: number;
+    from: number;
+    to: number;
+    total: number;
+}
 
 interface Props {
-    transactions: Transaction[];
+    transactions: PaginatedData<Transaction>;
     categories: Category[];
     wallets: Wallet[];
 }
@@ -208,7 +223,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {transactions.map((transaction) => (
+                        {transactions.data.map((transaction) => (
                             <TableRow key={transaction.id}>
                                 <TableCell>
                                     {new Date(transaction.date).toLocaleDateString()}
@@ -250,6 +265,8 @@ export default function Index({ transactions, categories, wallets }: Props) {
                         ))}
                     </TableBody>
                 </Table>
+
+                <Pagination links={transactions.links} />
             </div>
         </AppLayout>
     );

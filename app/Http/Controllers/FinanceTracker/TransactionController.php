@@ -17,7 +17,7 @@ class TransactionController extends Controller
         $transactions = Transaction::with(['category', 'wallet'])
             ->where('user_id', auth()->id())
             ->orderByDesc('date')
-            ->get();
+            ->paginate(10);
 
         $categories = Category::where('user_id', auth()->id())->get();
         $wallets = Wallet::where('user_id', auth()->id())->get();

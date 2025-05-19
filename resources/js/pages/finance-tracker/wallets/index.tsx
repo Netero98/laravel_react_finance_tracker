@@ -14,9 +14,24 @@ import { Wallet, BreadcrumbItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { Pagination } from '@/components/ui/pagination';
+
+interface PaginatedData<T> {
+    data: T[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    current_page: number;
+    last_page: number;
+    from: number;
+    to: number;
+    total: number;
+}
 
 interface Props {
-    wallets: Wallet[];
+    wallets: PaginatedData<Wallet>;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -128,7 +143,7 @@ export default function Index({ wallets }: Props) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {wallets.map((wallet) => (
+                        {wallets.data.map((wallet) => (
                             <TableRow key={wallet.id}>
                                 <TableCell>{wallet.name}</TableCell>
                                 <TableCell>{Number(wallet.balance).toFixed(2)}</TableCell>
@@ -154,6 +169,8 @@ export default function Index({ wallets }: Props) {
                         ))}
                     </TableBody>
                 </Table>
+
+                <Pagination links={wallets.links} />
             </div>
         </AppLayout>
     );
