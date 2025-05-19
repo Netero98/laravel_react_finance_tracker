@@ -57,6 +57,7 @@ export function Pagination({ links, className }: PaginationProps) {
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-background hover:bg-accent hover:text-accent-foreground border border-input'
                 )}
+                preserveScroll
               >
                 {label}
               </Link>
