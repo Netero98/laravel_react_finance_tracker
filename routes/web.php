@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FinanceTracker\CategoryController;
+use App\Http\Controllers\FinanceTracker\DashboardController;
 use App\Http\Controllers\FinanceTracker\TransactionController;
 use App\Http\Controllers\FinanceTracker\WalletController;
 use App\Http\Controllers\Todo\TodoController;
@@ -12,9 +13,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('todos')->name('todos.')->group(function () {
         Route::get('/', [TodoController::class, 'index'])->name('index');
