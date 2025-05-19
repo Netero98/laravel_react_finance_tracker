@@ -41,3 +41,34 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Category {
+    id: number;
+    name: string;
+    type: 'income' | 'expense';
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Wallet {
+    id: number;
+    name: string;
+    balance: number;
+    currency: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Transaction {
+    id: number;
+    amount: number;
+    description: string | null;
+    date: string;
+    type: 'income' | 'expense';
+    category_id: number;
+    wallet_id: number;
+    category: Category;
+    wallet: Wallet;
+    created_at: string;
+    updated_at: string;
+}
