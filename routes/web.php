@@ -4,15 +4,10 @@ use App\Http\Controllers\FinanceTracker\CategoryController;
 use App\Http\Controllers\FinanceTracker\DashboardController;
 use App\Http\Controllers\FinanceTracker\TransactionController;
 use App\Http\Controllers\FinanceTracker\WalletController;
-use App\Http\Controllers\Todo\TodoController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-Route::get('/', function () {
-    return redirect()->intended(route('dashboard', absolute: false));
-})->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('welcome');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 //    Route::prefix('todos')->name('todos.')->group(function () {

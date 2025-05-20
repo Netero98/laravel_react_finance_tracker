@@ -12,7 +12,7 @@ class WalletController extends Controller
 {
     public function index(): Response
     {
-        $wallets = Wallet::query()->where('user_id', auth()->id())->paginate(10);
+        $wallets = Wallet::query()->where('user_id', auth()->id())->paginate(8);
 
         return Inertia::render('finance-tracker/wallets/index', [
             'wallets' => $wallets
