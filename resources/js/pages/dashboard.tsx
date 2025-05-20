@@ -142,9 +142,11 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 flex flex-col justify-center items-center bg-white dark:bg-gray-800">
-                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Current Balance</h3>
-                        <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance</h3>
+                        <div className="flex justify-center items-center h-[150px]">
+                            <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
+                        </div>
                     </div>
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution</h3>
