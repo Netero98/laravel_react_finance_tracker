@@ -33,4 +33,4 @@ npm-run-dev-detached:
 down:
 	docker compose -f compose.dev.yaml down
 test:
-	make exec cmd="php artisan test --parallel"
+	make exec cmd="APP_ENV=testing php artisan test --parallel"

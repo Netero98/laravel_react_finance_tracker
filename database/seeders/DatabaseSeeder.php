@@ -66,8 +66,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Create transactions over the past 6 months
-        $startDate = Carbon::now()->subMonths(6);
+        // Create transactions over the past 1 month
+        $startDate = Carbon::now()->subMonths(1);
         $endDate = Carbon::now();
 
         $incomeCategories = Category::where('type', 'income')->get();

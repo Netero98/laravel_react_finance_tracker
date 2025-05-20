@@ -36,6 +36,10 @@ class WalletController extends Controller
 
     public function update(Request $request, Wallet $wallet)
     {
+        if ($wallet->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'balance' => 'required|numeric|min:0',
@@ -49,6 +53,10 @@ class WalletController extends Controller
 
     public function destroy(Wallet $wallet)
     {
+        if ($wallet->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $wallet->delete();
 
         return redirect()->back();

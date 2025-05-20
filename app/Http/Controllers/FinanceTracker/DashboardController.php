@@ -11,8 +11,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get all transactions ordered by date
-        $transactions = Transaction::with(['wallet'])->orderBy('date')->get();
+        // Get all transactions for the authenticated user ordered by date
+        $transactions = Transaction::with(['wallet'])
+            ->where('user_id', auth()->id())
+            ->orderBy('date')
+            ->get();
 
         // Get exchange rates (you'd need to implement this)
         $exchangeRates = $this->getExchangeRates();
@@ -52,8 +55,8 @@ class DashboardController extends Controller
             ];
         }
 
-        // Calculate current total balance in USD
-        $currentBalance = Wallet::all()->reduce(function ($total, $wallet) use ($exchangeRates) {
+        // Calculate current total balance in USD for the authenticated user
+        $currentBalance = Wallet::where('user_id', auth()->id())->get()->reduce(function ($total, $wallet) use ($exchangeRates) {
             $rate = $wallet->currency === 'USD' ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
             return $total + ($wallet->balance / $rate);
         }, 0);

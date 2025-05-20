@@ -35,6 +35,10 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
+        if ($category->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
@@ -47,6 +51,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $category->delete();
 
         return redirect()->back();

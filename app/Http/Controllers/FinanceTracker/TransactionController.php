@@ -54,6 +54,10 @@ class TransactionController extends Controller
 
     public function update(Request $request, Transaction $transaction)
     {
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'amount' => 'required|numeric',
             'description' => 'nullable|string|max:255',
@@ -88,6 +92,10 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $wallet = $transaction->wallet;
         $amount = $transaction->type === 'income' ? -$transaction->amount : $transaction->amount;
         $wallet->balance += $amount;
