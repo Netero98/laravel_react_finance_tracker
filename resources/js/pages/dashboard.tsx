@@ -55,7 +55,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
         labels: balanceHistory.map(item => new Date(item.date).toLocaleDateString()),
         datasets: [
             {
-                label: 'Balance History (USD)',
+                label: 'USD',
                 data: balanceHistory.map(item => item.balance),
                 fill: false,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -80,7 +80,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
             },
             title: {
                 display: true,
-                text: 'Historical Balance (USD)',
+                text: '',
             },
         },
     };
