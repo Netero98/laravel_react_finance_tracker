@@ -56,14 +56,29 @@ class DashboardController extends Controller
         }
 
         // Calculate current total balance in USD for the authenticated user
-        $currentBalance = Wallet::where('user_id', auth()->id())->get()->reduce(function ($total, $wallet) use ($exchangeRates) {
+        $wallets = Wallet::where('user_id', auth()->id())->get();
+        $currentBalance = $wallets->reduce(function ($total, $wallet) use ($exchangeRates) {
             $rate = $wallet->currency === 'USD' ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
             return $total + ($wallet->balance / $rate);
         }, 0);
 
+        // Prepare wallet data for pie chart
+        $walletData = $wallets->map(function ($wallet) use ($exchangeRates) {
+            $rate = $wallet->currency === 'USD' ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
+            $balanceUSD = $wallet->balance / $rate;
+
+            return [
+                'name' => $wallet->name,
+                'balance' => $balanceUSD,
+                'currency' => $wallet->currency,
+                'originalBalance' => $wallet->balance
+            ];
+        });
+
         return Inertia::render('dashboard', [
             'balanceHistory' => $formattedHistory,
             'currentBalance' => $currentBalance,
+            'walletData' => $walletData,
         ]);
     }
 

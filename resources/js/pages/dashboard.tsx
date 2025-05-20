@@ -1,5 +1,5 @@
 import React from 'react';
-import { Line } from 'react-chartjs-2';
+import { Line, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -9,7 +9,7 @@ import {
     Title,
     Tooltip,
     Legend,
-    ChartData,
+    ArcElement,
 } from 'chart.js';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
@@ -22,6 +22,7 @@ ChartJS.register(
     LinearScale,
     PointElement,
     LineElement,
+    ArcElement,
     Title,
     Tooltip,
     Legend
@@ -40,10 +41,17 @@ interface Props {
         balance: number;
     }[];
     currentBalance: number;
+    walletData: {
+        name: string;
+        balance: number;
+        currency: string;
+        originalBalance: number;
+    }[];
 }
 
-export default function Dashboard({ balanceHistory, currentBalance }: Props) {
-    const chartData: ChartData<'line'> = {
+export default function Dashboard({ balanceHistory, currentBalance, walletData }: Props) {
+    // Line chart data for balance history
+    const lineChartData: any = {
         labels: balanceHistory.map(item => new Date(item.date).toLocaleDateString()),
         datasets: [
             {
@@ -58,7 +66,7 @@ export default function Dashboard({ balanceHistory, currentBalance }: Props) {
         ],
     };
 
-    const chartOptions = {
+    const lineChartOptions: any = {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -77,6 +85,58 @@ export default function Dashboard({ balanceHistory, currentBalance }: Props) {
         },
     };
 
+    // Pie chart data for wallet proportions
+    const pieChartData: any = {
+        labels: walletData.map(wallet => wallet.name),
+        datasets: [
+            {
+                data: walletData.map(wallet => wallet.balance),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const pieChartOptions: any = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right' as const,
+            },
+            title: {
+                display: true,
+                text: 'Wallet Distribution (USD)',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context: any) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                        const percentage = Math.round((value / total) * 100);
+                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                    }
+                }
+            }
+        },
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -86,8 +146,11 @@ export default function Dashboard({ balanceHistory, currentBalance }: Props) {
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Current Balance</h3>
                         <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution</h3>
+                        <div className="h-[150px]">
+                            <Pie data={pieChartData} options={pieChartOptions} />
+                        </div>
                     </div>
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
@@ -96,7 +159,7 @@ export default function Dashboard({ balanceHistory, currentBalance }: Props) {
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[400px] flex-1 overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
                     <h2 className="text-xl font-semibold mb-4">Balance History</h2>
                     <div className="w-full h-[350px]">
-                        <Line data={chartData} options={chartOptions} />
+                        <Line data={lineChartData} options={lineChartOptions} />
                     </div>
                 </div>
             </div>
