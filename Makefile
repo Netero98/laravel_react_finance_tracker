@@ -32,3 +32,5 @@ npm-run-dev-detached:
 	docker compose -f compose.dev.yaml exec workspace bash -lc "npm run dev -d"
 down:
 	docker compose -f compose.dev.yaml down
+test:
+	make exec cmd="php artisan test --parallel"
