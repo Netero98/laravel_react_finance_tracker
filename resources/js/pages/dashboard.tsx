@@ -159,7 +159,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
                     </div>
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[400px] flex-1 overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
-                    <h2 className="text-xl font-semibold mb-4">Balance History</h2>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history</h3>
                     <div className="w-full h-[350px]">
                         <Line data={lineChartData} options={lineChartOptions} />
                     </div>
