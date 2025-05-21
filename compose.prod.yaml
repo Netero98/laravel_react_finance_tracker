@@ -40,8 +40,6 @@ services:
     volumes:
       - laravel-storage-production:/var/www/storage  # Mount the storage volume
       - laravel-build-production:/var/www/public/build  # Mount the build volume to access Vite assets
-#    env_file:
-#      - .env
     networks:
       - laravel-production
     healthcheck:
