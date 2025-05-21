@@ -14,13 +14,15 @@ services:
       - laravel-storage-production:/var/www/storage:ro
     networks:
       - laravel-production
-    ports:
+#    ports:
       # Map port 80 inside the container to the port specified by 'NGINX_PORT' on the host machine.
       # -----------------------------------------------------------
       # This allows external access to the Nginx web server running inside the container.
       # For example, if 'NGINX_PORT' is set to '8080', accessing 'http://localhost:8080' will reach the application.
       # -----------------------------------------------------------
-      - "${NGINX_PORT:-80}:80"
+
+    # This is commented because Coolify with traefik under the hood is used. No need to expose ports on host machine.
+#      - "${NGINX_PORT:-80}:80"
     depends_on:
       php-fpm:
         condition: service_healthy  # Wait for php-fpm health check
