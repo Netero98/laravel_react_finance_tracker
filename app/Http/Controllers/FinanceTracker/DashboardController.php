@@ -113,11 +113,47 @@ class DashboardController extends Controller
             ];
         }
 
+        // Get current month income transactions
+        $currentMonthIncome = Transaction::with(['category'])
+            ->where('user_id', auth()->id())
+            ->where('type', 'income')
+            ->whereBetween('date', [$currentMonth, $nextMonth])
+            ->get();
+
+        // Group current month income by category
+        $incomeByCategory = [];
+        foreach ($currentMonthIncome as $income) {
+            $categoryName = $income->category ? $income->category->name : 'Uncategorized';
+            $amount = $income->amount;
+
+            // Convert to USD if needed
+            if ($income->wallet && $income->wallet->currency !== 'USD') {
+                $rate = $exchangeRates[$income->wallet->currency] ?? 1;
+                $amount = $amount / $rate; // Convert to USD
+            }
+
+            if (!isset($incomeByCategory[$categoryName])) {
+                $incomeByCategory[$categoryName] = 0;
+            }
+
+            $incomeByCategory[$categoryName] += $amount;
+        }
+
+        // Format for the frontend
+        $currentMonthIncomeData = [];
+        foreach ($incomeByCategory as $category => $amount) {
+            $currentMonthIncomeData[] = [
+                'name' => $category,
+                'amount' => $amount
+            ];
+        }
+
         return Inertia::render('dashboard', [
             'balanceHistory' => $formattedHistory,
             'currentBalance' => $currentBalance,
             'walletData' => $walletData,
             'currentMonthExpenses' => $currentMonthExpensesData,
+            'currentMonthIncome' => $currentMonthIncomeData,
         ]);
     }
 

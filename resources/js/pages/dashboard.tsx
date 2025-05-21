@@ -55,28 +55,35 @@ interface Props {
         name: string;
         amount: number;
     }[];
+    currentMonthIncome: {
+        name: string;
+        amount: number;
+    }[];
 }
 
-export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses }: Props) {
+export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses, currentMonthIncome }: Props) {
     // Define the initial layouts for different breakpoints
     const defaultLayouts = {
         lg: [
             { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'expenses', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 1 }
+            { i: 'income', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 1, y: 1, w: 2, h: 2, minW: 2, minH: 1 }
         ],
         md: [
             { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'income', x: 1, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'history', x: 0, y: 2, w: 2, h: 2, minW: 2, minH: 1 }
         ],
         sm: [
             { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'wallet', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
             { i: 'expenses', x: 0, y: 2, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 3, w: 1, h: 2, minW: 1, minH: 1 }
+            { i: 'income', x: 0, y: 3, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 4, w: 1, h: 2, minW: 1, minH: 1 }
         ]
     };
 
@@ -189,6 +196,33 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         ],
     };
 
+    // Pie chart data for current month income
+    const incomePieChartData: any = {
+        labels: currentMonthIncome.map(income => income.name),
+        datasets: [
+            {
+                data: currentMonthIncome.map(income => income.amount),
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
+
     const pieChartOptions: any = {
         responsive: true,
         maintainAspectRatio: false,
@@ -278,6 +312,29 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             ) : (
                                 <div className="flex justify-center items-center h-full">
                                     <p className="text-gray-500">No expenses this month</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div
+                        key="income"
+                        className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                    >
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income (USD)</h3>
+                        {currentMonthIncome.length > 0 && (
+                            <div className="flex justify-center items-center mb-2">
+                                <p className="text-xl font-bold text-green-600">
+                                    ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
+                                </p>
+                            </div>
+                        )}
+                        <div className="h-[calc(100%-70px)]">
+                            {currentMonthIncome.length > 0 ? (
+                                <Pie data={incomePieChartData} options={pieChartOptions} />
+                            ) : (
+                                <div className="flex justify-center items-center h-full">
+                                    <p className="text-gray-500">No income this month</p>
                                 </div>
                             )}
                         </div>
