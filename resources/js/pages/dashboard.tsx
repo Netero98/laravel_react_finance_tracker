@@ -63,20 +63,6 @@ interface Props {
 }
 
 export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses, currentMonthIncome }: Props) {
-    // State to track if multi-touch is being used (for dragging)
-    const [isMultiTouch, setIsMultiTouch] = useState(false);
-
-    // Function to handle touch start events
-    const handleTouchStart = (e: React.TouchEvent) => {
-        // If there are 2 or more touches, enable dragging
-        setIsMultiTouch(e.touches.length >= 2);
-    };
-
-    // Function to handle touch end events
-    const handleTouchEnd = () => {
-        setIsMultiTouch(false);
-    };
-
     // Define available charts
     const availableCharts = [
         { id: 'balance', title: 'Current Balance' },
@@ -373,115 +359,104 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         <p className="text-gray-500 dark:text-gray-400">No charts selected. Use the Charts button to select charts to display.</p>
                     </div>
                 ) : (
-                    <div
-                        onTouchStart={handleTouchStart}
-                        onTouchEnd={handleTouchEnd}
-                        className="relative"
+                    <ResponsiveGridLayout
+                        className="layout"
+                        layouts={layouts}
+                        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+                        cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
+                        rowHeight={150}
+                        onLayoutChange={handleLayoutChange}
+                        isDraggable={true}
+                        isResizable={true}
+                        margin={[16, 16]}
+                        containerPadding={[0, 0]}
                     >
-                        {isMultiTouch && (
-                            <div className="absolute top-0 left-0 right-0 z-10 bg-blue-500 text-white text-center text-xs py-1">
-                                Drag mode enabled (using 2 fingers)
+                        {visibleCharts.includes('balance') && (
+                            <div
+                                key="balance"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                            >
+                                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
+                                <div className="flex justify-center items-center h-[calc(100%-40px)]">
+                                    <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
+                                </div>
                             </div>
                         )}
-                        <ResponsiveGridLayout
-                            className="layout"
-                            layouts={layouts}
-                            breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-                            cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
-                            rowHeight={150}
-                            onLayoutChange={handleLayoutChange}
-                            isDraggable={isMultiTouch}
-                            isResizable={true}
-                            margin={[16, 16]}
-                            containerPadding={[0, 0]}
-                        >
-                            {visibleCharts.includes('balance') && (
-                                <div
-                                    key="balance"
-                                    className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
-                                >
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
-                                    <div className="flex justify-center items-center h-[calc(100%-40px)]">
-                                        <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
-                                    </div>
-                                </div>
-                            )}
 
-                            {visibleCharts.includes('wallet') && (
-                                <div
-                                    key="wallet"
-                                    className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
-                                >
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
-                                    <div className="h-[calc(100%-40px)]">
-                                        <Pie data={pieChartData} options={pieChartOptions} />
-                                    </div>
+                        {visibleCharts.includes('wallet') && (
+                            <div
+                                key="wallet"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                            >
+                                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
+                                <div className="h-[calc(100%-40px)]">
+                                    <Pie data={pieChartData} options={pieChartOptions} />
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {visibleCharts.includes('expenses') && (
-                                <div
-                                    key="expenses"
-                                    className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
-                                >
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
-                                    {currentMonthExpenses.length > 0 && (
-                                        <div className="flex justify-center items-center mb-2">
-                                            <p className="text-xl font-bold text-red-600">
-                                                ${currentMonthExpenses.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
-                                            </p>
+                        {visibleCharts.includes('expenses') && (
+                            <div
+                                key="expenses"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                            >
+                                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
+                                {currentMonthExpenses.length > 0 && (
+                                    <div className="flex justify-center items-center mb-2">
+                                        <p className="text-xl font-bold text-red-600">
+                                            ${currentMonthExpenses.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="h-[calc(100%-70px)]">
+                                    {currentMonthExpenses.length > 0 ? (
+                                        <Pie data={expensesPieChartData} options={pieChartOptions} />
+                                    ) : (
+                                        <div className="flex justify-center items-center h-full">
+                                            <p className="text-gray-500">No expenses this month</p>
                                         </div>
                                     )}
-                                    <div className="h-[calc(100%-70px)]">
-                                        {currentMonthExpenses.length > 0 ? (
-                                            <Pie data={expensesPieChartData} options={pieChartOptions} />
-                                        ) : (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="text-gray-500">No expenses this month</p>
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {visibleCharts.includes('income') && (
-                                <div
-                                    key="income"
-                                    className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
-                                >
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income (USD)</h3>
-                                    {currentMonthIncome.length > 0 && (
-                                        <div className="flex justify-center items-center mb-2">
-                                            <p className="text-xl font-bold text-green-600">
-                                                ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
-                                            </p>
+                        {visibleCharts.includes('income') && (
+                            <div
+                                key="income"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                            >
+                                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income (USD)</h3>
+                                {currentMonthIncome.length > 0 && (
+                                    <div className="flex justify-center items-center mb-2">
+                                        <p className="text-xl font-bold text-green-600">
+                                            ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="h-[calc(100%-70px)]">
+                                    {currentMonthIncome.length > 0 ? (
+                                        <Pie data={incomePieChartData} options={pieChartOptions} />
+                                    ) : (
+                                        <div className="flex justify-center items-center h-full">
+                                            <p className="text-gray-500">No income this month</p>
                                         </div>
                                     )}
-                                    <div className="h-[calc(100%-70px)]">
-                                        {currentMonthIncome.length > 0 ? (
-                                            <Pie data={incomePieChartData} options={pieChartOptions} />
-                                        ) : (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="text-gray-500">No income this month</p>
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {visibleCharts.includes('history') && (
-                                <div
-                                    key="history"
-                                    className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
-                                >
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history</h3>
-                                    <div className="h-[calc(100%-40px)]">
-                                        <Line data={lineChartData} options={lineChartOptions} />
-                                    </div>
+                        {visibleCharts.includes('history') && (
+                            <div
+                                key="history"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                            >
+                                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history</h3>
+                                <div className="h-[calc(100%-40px)]">
+                                    <Line data={lineChartData} options={lineChartOptions} />
                                 </div>
-                            )}
-                        </ResponsiveGridLayout>
-                    </div>
+                            </div>
+                        )}
+                    </ResponsiveGridLayout>
                 )}
             </div>
         </AppLayout>
