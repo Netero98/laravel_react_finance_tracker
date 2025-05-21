@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: ./docker/production/nginx/Dockerfile
+      args:
+        # Use current timestamp to force cache invalidation for the COPY step
+        CACHE_BUST: ${CACHE_BUST:-$(date +%s)}
     restart: unless-stopped # Automatically restart unless the service is explicitly stopped
     volumes:
       # Mount the 'laravel-storage-production' volume to '/var/www/storage' inside the container.
