@@ -214,11 +214,10 @@ export default function Index({ transactions, categories, wallets }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Date</TableHead>
-                            <TableHead>Type</TableHead>
                             <TableHead>Category</TableHead>
-                            <TableHead>Description</TableHead>
+                            <TableHead className="hidden md:table-cell">Description</TableHead>
                             <TableHead>Amount</TableHead>
-                            <TableHead>Wallet</TableHead>
+                            <TableHead className="hidden md:table-cell">Wallet</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -228,11 +227,8 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                 <TableCell>
                                     {new Date(transaction.date).toLocaleDateString()}
                                 </TableCell>
-                                <TableCell className="capitalize">
-                                    {transaction.type}
-                                </TableCell>
                                 <TableCell>{transaction.category.name}</TableCell>
-                                <TableCell>{transaction.description}</TableCell>
+                                <TableCell className="hidden md:table-cell">{transaction.description}</TableCell>
                                 <TableCell
                                     className={
                                         transaction.type === 'income'
@@ -243,7 +239,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                     {transaction.type === 'income' ? '+' : '-'}
                                     {Math.abs(transaction.amount).toFixed(2)}
                                 </TableCell>
-                                <TableCell>{transaction.wallet.name}</TableCell>
+                                <TableCell className="hidden md:table-cell">{transaction.wallet.name}</TableCell>
                                 <TableCell>
                                     <Button
                                         variant="outline"
