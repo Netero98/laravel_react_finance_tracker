@@ -30,10 +30,7 @@ COPY ./docker/production/nginx/nginx.conf /etc/nginx/nginx.conf
 # Copy Laravel's public assets from the builder stage
 # -----------------------------------------------------------
 # We only need the 'public' directory from our Laravel app.
-# Add a build argument to force cache invalidation
 # -----------------------------------------------------------
-ARG CACHE_BUST=unknown
-RUN echo "Cache bust: $CACHE_BUST"
 COPY --from=builder /var/www/public /var/www/public
 
 # Set the working directory to the public folder
