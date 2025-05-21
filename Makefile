@@ -19,17 +19,17 @@ up-detached:
 up:
 	docker compose -f compose.dev.yaml up
 composer-i:
-	docker compose -f compose.dev.yaml exec workspace bash -c "composer install"
+	make exec cmd="composer install"
 migrate-fresh:
-	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan migrate:fresh"
+	make exec cmd="php artisan migrate:fresh"
 seed:
-	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan db:seed"
+	make exec cmd="php artisan db:seed"
 app-key-gen:
-	docker compose -f compose.dev.yaml exec workspace bash -c "php artisan key:generate"
+	make exec cmd="php artisan key:generate"
 npm-i:
-	docker compose -f compose.dev.yaml exec workspace bash -lc "npm install"
+	make exec cmd="npm install"
 npm-run-dev-detached:
-	docker compose -f compose.dev.yaml exec workspace bash -lc "npm run dev -d"
+	make exec cmd="npm run dev -d"
 down:
 	docker compose -f compose.dev.yaml down
 test:
