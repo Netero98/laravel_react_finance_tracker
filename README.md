@@ -7,3 +7,6 @@ README.md: https://github.com/dockersamples/laravel-docker-examples
     ```
     make init
     ```
+
+### Tech debt:
+- Оптимизировать DashboardController, минимизация запросов + кэширование
