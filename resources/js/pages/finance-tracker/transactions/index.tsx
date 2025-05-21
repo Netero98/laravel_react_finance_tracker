@@ -215,9 +215,9 @@ export default function Index({ transactions, categories, wallets }: Props) {
                         <TableRow>
                             <TableHead>Date</TableHead>
                             <TableHead>Category</TableHead>
-                            <TableHead className="hidden md:table-cell">Description</TableHead>
+                            <TableHead className="hidden lg:table-cell">Description</TableHead>
                             <TableHead>Amount</TableHead>
-                            <TableHead className="hidden md:table-cell">Wallet</TableHead>
+                            <TableHead className="hidden lg:table-cell">Wallet</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -228,7 +228,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                     {new Date(transaction.date).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>{transaction.category.name}</TableCell>
-                                <TableCell className="hidden md:table-cell">{transaction.description}</TableCell>
+                                <TableCell className="hidden lg:table-cell">{transaction.description}</TableCell>
                                 <TableCell
                                     className={
                                         transaction.type === 'income'
@@ -239,7 +239,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                     {transaction.type === 'income' ? '+' : '-'}
                                     {Math.abs(transaction.amount).toFixed(2)}
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">{transaction.wallet.name}</TableCell>
+                                <TableCell className="hidden lg:table-cell">{transaction.wallet.name}</TableCell>
                                 <TableCell>
                                     <Button
                                         variant="outline"
