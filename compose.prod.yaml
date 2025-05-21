@@ -43,8 +43,23 @@ services:
     volumes:
       - laravel-storage-production:/var/www/storage  # Mount the storage volume
       - laravel-build-production:/var/www/public/build  # Mount the build volume to access Vite assets
-    env_file:
-      - .env
+    # Use environment instead of env_file to avoid passing CACHE_BUST with command substitution
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-http://localhost}
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=${DB_CONNECTION:-pgsql}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE:-app}
+      - DB_USERNAME=${DB_USERNAME:-laravel}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - CACHE_STORE=${CACHE_STORE:-redis}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
+      - SESSION_DRIVER=${SESSION_DRIVER:-database}
     networks:
       - laravel-production
     healthcheck:
