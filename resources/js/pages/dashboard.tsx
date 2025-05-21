@@ -167,31 +167,6 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         },
     };
 
-    const expensesPieChartOptions: any = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'right' as const,
-            },
-            title: {
-                display: true,
-                text: '',
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context: any) {
-                        const label = context.label || '';
-                        const value = context.raw || 0;
-                        const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-                        const percentage = Math.round((value / total) * 100);
-                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                    }
-                }
-            }
-        },
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -213,7 +188,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
                         <div className="h-[150px]">
                             {currentMonthExpenses.length > 0 ? (
-                                <Pie data={expensesPieChartData} options={expensesPieChartOptions} />
+                                <Pie data={expensesPieChartData} options={pieChartOptions} />
                             ) : (
                                 <div className="flex justify-center items-center h-full">
                                     <p className="text-gray-500">No expenses this month</p>
