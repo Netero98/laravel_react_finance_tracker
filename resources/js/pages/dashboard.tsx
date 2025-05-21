@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Line, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -14,6 +14,11 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 // Register Chart.js components
 ChartJS.register(
@@ -53,6 +58,48 @@ interface Props {
 }
 
 export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses }: Props) {
+    // Define the initial layouts for different breakpoints
+    const defaultLayouts = {
+        lg: [
+            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 1, w: 3, h: 2, minW: 2, minH: 1 }
+        ],
+        md: [
+            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 2, w: 2, h: 2, minW: 2, minH: 1 }
+        ],
+        sm: [
+            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 0, y: 2, w: 1, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 3, w: 1, h: 2, minW: 1, minH: 1 }
+        ]
+    };
+
+    // State to store the current layouts
+    const [layouts, setLayouts] = useState(defaultLayouts);
+
+    // Load saved layouts from localStorage if available
+    useEffect(() => {
+        const savedLayouts = localStorage.getItem('dashboardLayouts');
+        if (savedLayouts) {
+            try {
+                setLayouts(JSON.parse(savedLayouts));
+            } catch (e) {
+                console.error('Failed to parse saved layouts', e);
+            }
+        }
+    }, []);
+
+    // Save layouts to localStorage when they change
+    const handleLayoutChange = (currentLayout: any, allLayouts: any) => {
+        setLayouts(allLayouts);
+        localStorage.setItem('dashboardLayouts', JSON.stringify(allLayouts));
+    };
     // Line chart data for balance history
     const lineChartData: any = {
         labels: balanceHistory.map(item => new Date(item.date).toLocaleDateString()),
@@ -171,22 +218,54 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
+                    <button
+                        onClick={() => setLayouts(defaultLayouts)}
+                        className="rounded-md bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                    >
+                        Reset Layout
+                    </button>
+                </div>
+
+                <ResponsiveGridLayout
+                    className="layout"
+                    layouts={layouts}
+                    breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+                    cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
+                    rowHeight={150}
+                    onLayoutChange={handleLayoutChange}
+                    isDraggable={true}
+                    isResizable={true}
+                    margin={[16, 16]}
+                    containerPadding={[0, 0]}
+                >
+                    <div
+                        key="balance"
+                        className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                    >
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
-                        <div className="flex justify-center items-center h-[150px]">
+                        <div className="flex justify-center items-center h-[calc(100%-40px)]">
                             <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
                         </div>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+
+                    <div
+                        key="wallet"
+                        className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                    >
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
-                        <div className="h-[150px]">
+                        <div className="h-[calc(100%-40px)]">
                             <Pie data={pieChartData} options={pieChartOptions} />
                         </div>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+
+                    <div
+                        key="expenses"
+                        className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                    >
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
-                        <div className="h-[150px]">
+                        <div className="h-[calc(100%-40px)]">
                             {currentMonthExpenses.length > 0 ? (
                                 <Pie data={expensesPieChartData} options={pieChartOptions} />
                             ) : (
@@ -196,13 +275,17 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             )}
                         </div>
                     </div>
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[400px] flex-1 overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history</h3>
-                    <div className="w-full h-[350px]">
-                        <Line data={lineChartData} options={lineChartOptions} />
+
+                    <div
+                        key="history"
+                        className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                    >
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history</h3>
+                        <div className="h-[calc(100%-40px)]">
+                            <Line data={lineChartData} options={lineChartOptions} />
+                        </div>
                     </div>
-                </div>
+                </ResponsiveGridLayout>
             </div>
         </AppLayout>
     );
