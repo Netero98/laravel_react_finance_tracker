@@ -17,6 +17,16 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
+        // Get current month expense transactions
+        $currentMonth = now()->startOfMonth();
+        $nextMonth = now()->copy()->addMonth()->startOfMonth();
+
+        $currentMonthExpenses = Transaction::with(['category'])
+            ->where('user_id', auth()->id())
+            ->where('type', 'expense')
+            ->whereBetween('date', [$currentMonth, $nextMonth])
+            ->get();
+
         // Get exchange rates (you'd need to implement this)
         $exchangeRates = $this->getExchangeRates();
 
@@ -75,10 +85,39 @@ class DashboardController extends Controller
             ];
         });
 
+        // Group current month expenses by category
+        $expensesByCategory = [];
+        foreach ($currentMonthExpenses as $expense) {
+            $categoryName = $expense->category ? $expense->category->name : 'Uncategorized';
+            $amount = $expense->amount;
+
+            // Convert to USD if needed
+            if ($expense->wallet && $expense->wallet->currency !== 'USD') {
+                $rate = $exchangeRates[$expense->wallet->currency] ?? 1;
+                $amount = $amount / $rate; // Convert to USD
+            }
+
+            if (!isset($expensesByCategory[$categoryName])) {
+                $expensesByCategory[$categoryName] = 0;
+            }
+
+            $expensesByCategory[$categoryName] += $amount;
+        }
+
+        // Format for the frontend
+        $currentMonthExpensesData = [];
+        foreach ($expensesByCategory as $category => $amount) {
+            $currentMonthExpensesData[] = [
+                'name' => $category,
+                'amount' => $amount
+            ];
+        }
+
         return Inertia::render('dashboard', [
             'balanceHistory' => $formattedHistory,
             'currentBalance' => $currentBalance,
             'walletData' => $walletData,
+            'currentMonthExpenses' => $currentMonthExpensesData,
         ]);
     }
 

@@ -11,7 +11,6 @@ import {
     Legend,
     ArcElement,
 } from 'chart.js';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -47,9 +46,13 @@ interface Props {
         currency: string;
         originalBalance: number;
     }[];
+    currentMonthExpenses: {
+        name: string;
+        amount: number;
+    }[];
 }
 
-export default function Dashboard({ balanceHistory, currentBalance, walletData }: Props) {
+export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses }: Props) {
     // Line chart data for balance history
     const lineChartData: any = {
         labels: balanceHistory.map(item => new Date(item.date).toLocaleDateString()),
@@ -112,6 +115,33 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
         ],
     };
 
+    // Pie chart data for current month expenses
+    const expensesPieChartData: any = {
+        labels: currentMonthExpenses.map(expense => expense.name),
+        datasets: [
+            {
+                data: currentMonthExpenses.map(expense => expense.amount),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
+
     const pieChartOptions: any = {
         responsive: true,
         maintainAspectRatio: false,
@@ -121,7 +151,32 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
             },
             title: {
                 display: true,
-                text: 'Wallet Distribution (USD)',
+                text: '',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context: any) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                        const percentage = Math.round((value / total) * 100);
+                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                    }
+                }
+            }
+        },
+    };
+
+    const expensesPieChartOptions: any = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right' as const,
+            },
+            title: {
+                display: true,
+                text: '',
             },
             tooltip: {
                 callbacks: {
@@ -143,19 +198,28 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData }
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
-                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance</h3>
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
                         <div className="flex justify-center items-center h-[150px]">
                             <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
                         </div>
                     </div>
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
-                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution</h3>
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
                         <div className="h-[150px]">
                             <Pie data={pieChartData} options={pieChartOptions} />
                         </div>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
+                        <div className="h-[150px]">
+                            {currentMonthExpenses.length > 0 ? (
+                                <Pie data={expensesPieChartData} options={expensesPieChartOptions} />
+                            ) : (
+                                <div className="flex justify-center items-center h-full">
+                                    <p className="text-gray-500">No expenses this month</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[400px] flex-1 overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
