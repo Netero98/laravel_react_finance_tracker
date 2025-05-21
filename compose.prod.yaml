@@ -36,8 +36,8 @@ services:
     restart: unless-stopped
     volumes:
       - laravel-storage-production:/var/www/storage  # Mount the storage volume
-    env_file:
-      - .env
+#    env_file:
+#      - .env
     networks:
       - laravel-production
     healthcheck:
@@ -51,6 +51,19 @@ services:
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
+
+  cli:
+    build:
+      context: .
+      dockerfile: ./docker/production/cli/Dockerfile
+    volumes:
+      - .:/var/www
+      - laravel-storage-production:/var/www/storage
+#    env_file:
+#      - .env
+    networks:
+      - laravel-production
+    restart: unless-stopped
 
 #  postgres:
 #    image: postgres:16
