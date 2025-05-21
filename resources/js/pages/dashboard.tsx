@@ -265,7 +265,14 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                     >
                         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
-                        <div className="h-[calc(100%-40px)]">
+                        {currentMonthExpenses.length > 0 && (
+                            <div className="flex justify-center items-center mb-2">
+                                <p className="text-xl font-bold text-red-600">
+                                    ${currentMonthExpenses.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
+                                </p>
+                            </div>
+                        )}
+                        <div className="h-[calc(100%-70px)]">
                             {currentMonthExpenses.length > 0 ? (
                                 <Pie data={expensesPieChartData} options={pieChartOptions} />
                             ) : (
