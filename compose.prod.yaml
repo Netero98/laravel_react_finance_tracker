@@ -52,19 +52,6 @@ services:
 #      postgres:
 #        condition: service_healthy
 
-  cli:
-    build:
-      context: .
-      dockerfile: ./docker/production/cli/Dockerfile
-    volumes:
-      - .:/var/www
-      - laravel-storage-production:/var/www/storage
-#    env_file:
-#      - .env
-    networks:
-      - laravel-production
-    restart: unless-stopped
-
 #  postgres:
 #    image: postgres:16
 #    restart: unless-stopped
