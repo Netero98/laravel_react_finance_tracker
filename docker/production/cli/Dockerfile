@@ -48,5 +48,5 @@ USER www
 WORKDIR /var/www
 
 COPY docker/production/cli/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
