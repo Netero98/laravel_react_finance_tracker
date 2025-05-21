@@ -153,7 +153,7 @@ export default function Index({ wallets }: Props) {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleEdit(wallet)}
-                                        className="mr-2"
+                                        className="m-2"
                                     >
                                         Edit
                                     </Button>

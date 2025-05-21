@@ -245,7 +245,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleEdit(transaction)}
-                                        className="mr-2"
+                                        className="m-2"
                                     >
                                         Edit
                                     </Button>

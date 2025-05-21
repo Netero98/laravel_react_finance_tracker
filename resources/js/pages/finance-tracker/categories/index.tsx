@@ -142,7 +142,7 @@ export default function Index({ categories }: Props) {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleEdit(category)}
-                                        className="mr-2"
+                                        className="m-2"
                                     >
                                         Edit
                                     </Button>
