@@ -20,10 +20,15 @@ class ExchangeRateService
      */
     public function getExchangeRates(): array
     {
-        return Cache::flexible(self::CACHE_KEY, [self::FRESH_TTL, self::STALE_TTL] , function () {
-            Log::info('Fetching exchange rates from API');
-            return $this->fetchExchangeRates();
+        return Cache::remember(self::CACHE_KEY, now()->addSeconds(self::FRESH_TTL), function () {
+            $lock = Cache::lock(self::CACHE_KEY . '-lock', 10); // 10 секунд блокировки
+
+            return $lock->block(5, function () {
+                Log::info('Fetching exchange rates from API');
+                return $this->fetchExchangeRates();
+            });
         });
+
     }
 
     /**
