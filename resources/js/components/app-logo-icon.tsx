@@ -2,8 +2,8 @@ import { SVGAttributes } from 'react';
 
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
     return (
-            <svg { ...props } version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                 width="100%" viewBox="0 0 192 192" enable-background="new 0 0 192 192" xml:space="preserve">
+            <svg { ...props } version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 width="100%" viewBox="0 0 192 192" enableBackground="new 0 0 192 192" xmlSpace="preserve">
     <path fill="#051B24" opacity="1.000000" stroke="none"
           d="
     M193.000000,70.000000

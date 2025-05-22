@@ -20,14 +20,13 @@ test('users can view their transactions', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -35,10 +34,8 @@ test('users can view their transactions', function () {
         'amount' => 100,
         'description' => 'Test Transaction',
         'date' => now(),
-        'type' => 'expense',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     $this->actingAs($user)
@@ -58,14 +55,13 @@ test('users can create a transaction', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -74,7 +70,6 @@ test('users can create a transaction', function () {
             'amount' => 100,
             'description' => 'New Transaction',
             'date' => now()->format('Y-m-d'),
-            'type' => 'expense',
             'category_id' => $category->id,
             'wallet_id' => $wallet->id,
         ])
@@ -83,16 +78,14 @@ test('users can create a transaction', function () {
     $this->assertDatabaseHas('transactions', [
         'amount' => 100,
         'description' => 'New Transaction',
-        'type' => 'expense',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     // Check that wallet balance was updated
     $this->assertDatabaseHas('wallets', [
         'id' => $wallet->id,
-        'balance' => 900, // 1000 - 100
+        'initial_balance' => 1000,
     ]);
 });
 
@@ -101,14 +94,13 @@ test('users can create an income transaction', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Income Category',
-        'type' => 'income',
         'user_id' => $user->id,
     ]);
 
@@ -117,7 +109,6 @@ test('users can create an income transaction', function () {
             'amount' => 200,
             'description' => 'Income Transaction',
             'date' => now()->format('Y-m-d'),
-            'type' => 'income',
             'category_id' => $category->id,
             'wallet_id' => $wallet->id,
         ])
@@ -126,16 +117,14 @@ test('users can create an income transaction', function () {
     $this->assertDatabaseHas('transactions', [
         'amount' => 200,
         'description' => 'Income Transaction',
-        'type' => 'income',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     // Check that wallet balance was updated
     $this->assertDatabaseHas('wallets', [
         'id' => $wallet->id,
-        'balance' => 1200, // 1000 + 200
+        'initial_balance' => 1000,
     ]);
 });
 
@@ -144,14 +133,13 @@ test('users can update their transaction', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -159,22 +147,15 @@ test('users can update their transaction', function () {
         'amount' => 100,
         'description' => 'Test Transaction',
         'date' => now(),
-        'type' => 'expense',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
-
-    // Update wallet balance to reflect the transaction
-    $wallet->balance -= 100;
-    $wallet->save();
 
     $this->actingAs($user)
         ->put("/transactions/{$transaction->id}", [
             'amount' => 50, // Changed from 100 to 50
             'description' => 'Updated Transaction',
             'date' => now()->format('Y-m-d'),
-            'type' => 'expense',
             'category_id' => $category->id,
             'wallet_id' => $wallet->id,
         ])
@@ -186,10 +167,9 @@ test('users can update their transaction', function () {
         'description' => 'Updated Transaction',
     ]);
 
-    // Check that wallet balance was updated (100 added back, 50 deducted)
     $this->assertDatabaseHas('wallets', [
         'id' => $wallet->id,
-        'balance' => 950, // 900 + 100 - 50
+        'initial_balance' => 1000, //the same as before permutations
     ]);
 });
 
@@ -198,14 +178,13 @@ test('users can delete their transaction', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -213,15 +192,9 @@ test('users can delete their transaction', function () {
         'amount' => 100,
         'description' => 'Test Transaction',
         'date' => now(),
-        'type' => 'expense',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
-
-    // Update wallet balance to reflect the transaction
-    $wallet->balance -= 100;
-    $wallet->save();
 
     $this->actingAs($user)
         ->delete("/transactions/{$transaction->id}")
@@ -234,7 +207,7 @@ test('users can delete their transaction', function () {
     // Check that wallet balance was restored
     $this->assertDatabaseHas('wallets', [
         'id' => $wallet->id,
-        'balance' => 1000, // 900 + 100
+        'initial_balance' => 1000, //the same as before
     ]);
 });
 
@@ -244,14 +217,13 @@ test('users cannot access transactions of other users', function () {
 
     $wallet = Wallet::create([
         'name' => 'Other User Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user2->id,
     ]);
 
     $category = Category::create([
         'name' => 'Other User Category',
-        'type' => 'expense',
         'user_id' => $user2->id,
     ]);
 
@@ -259,10 +231,8 @@ test('users cannot access transactions of other users', function () {
         'amount' => 100,
         'description' => 'Other User Transaction',
         'date' => now(),
-        'type' => 'expense',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user2->id,
     ]);
 
     $this->actingAs($user1)
@@ -278,7 +248,6 @@ test('users cannot access transactions of other users', function () {
             'amount' => 50,
             'description' => 'Hacked Transaction',
             'date' => now()->format('Y-m-d'),
-            'type' => 'expense',
             'category_id' => $category->id,
             'wallet_id' => $wallet->id,
         ])
@@ -294,14 +263,13 @@ test('transaction validation rules are enforced', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -310,9 +278,8 @@ test('transaction validation rules are enforced', function () {
             'amount' => 'not-a-number',
             'description' => str_repeat('a', 300), // Too long
             'date' => 'invalid-date',
-            'type' => 'invalid-type',
             'category_id' => 999, // Non-existent
             'wallet_id' => 999, // Non-existent
         ])
-        ->assertSessionHasErrors(['amount', 'date', 'type', 'category_id', 'wallet_id']);
+        ->assertSessionHasErrors(['amount', 'date', 'category_id', 'wallet_id']);
 });

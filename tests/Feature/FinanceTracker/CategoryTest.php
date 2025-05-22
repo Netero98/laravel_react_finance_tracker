@@ -18,7 +18,6 @@ test('users can view their categories', function () {
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -38,13 +37,11 @@ test('users can create a category', function () {
     $this->actingAs($user)
         ->post('/categories', [
             'name' => 'New Category',
-            'type' => 'income',
         ])
         ->assertRedirect();
 
     $this->assertDatabaseHas('categories', [
         'name' => 'New Category',
-        'type' => 'income',
         'user_id' => $user->id,
     ]);
 });
@@ -54,21 +51,18 @@ test('users can update their category', function () {
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
     $this->actingAs($user)
         ->put("/categories/{$category->id}", [
             'name' => 'Updated Category',
-            'type' => 'income',
         ])
         ->assertRedirect();
 
     $this->assertDatabaseHas('categories', [
         'id' => $category->id,
         'name' => 'Updated Category',
-        'type' => 'income',
     ]);
 });
 
@@ -77,14 +71,12 @@ test('users can delete their category', function () {
 
     $category = Category::create([
         'name' => 'Test Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
     $this->assertDatabaseHas('categories', [
         'id' => $category->id,
         'name' => 'Test Category',
-        'type' => 'expense',
     ]);
 
     $this->actingAs($user)
@@ -102,7 +94,6 @@ test('users cannot access categories of other users', function () {
 
     $category = Category::create([
         'name' => 'Other User Category',
-        'type' => 'expense',
         'user_id' => $user2->id,
     ]);
 
@@ -117,7 +108,6 @@ test('users cannot access categories of other users', function () {
     $this->actingAs($user1)
         ->put("/categories/{$category->id}", [
             'name' => 'Hacked Category',
-            'type' => 'income',
         ])
         ->assertForbidden();
 
@@ -132,39 +122,28 @@ test('category validation rules are enforced', function () {
     $this->actingAs($user)
         ->post('/categories', [
             'name' => '',
-            'type' => 'invalid-type',
         ])
-        ->assertSessionHasErrors(['name', 'type']);
+        ->assertSessionHasErrors(['name']);
 
     $this->actingAs($user)
         ->post('/categories', [
             'name' => str_repeat('a', 300), // Too long
-            'type' => 'expense',
         ])
         ->assertSessionHasErrors(['name']);
 });
 
-test('category type must be income or expense', function () {
+test('category must have name', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->post('/categories', [
             'name' => 'Valid Name',
-            'type' => 'savings', // Invalid type
-        ])
-        ->assertSessionHasErrors(['type']);
-
-    $this->actingAs($user)
-        ->post('/categories', [
-            'name' => 'Valid Name',
-            'type' => 'income', // Valid type
         ])
         ->assertRedirect();
 
     $this->actingAs($user)
         ->post('/categories', [
             'name' => 'Valid Name',
-            'type' => 'expense', // Valid type
         ])
         ->assertRedirect();
 });

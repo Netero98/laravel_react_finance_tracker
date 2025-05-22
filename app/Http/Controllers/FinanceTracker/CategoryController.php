@@ -23,7 +23,6 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:income,expense',
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -41,7 +40,6 @@ class CategoryController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:income,expense',
         ]);
 
         $category->update($validated);

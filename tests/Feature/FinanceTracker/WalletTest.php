@@ -18,7 +18,7 @@ test('users can view their wallets', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
@@ -39,14 +39,14 @@ test('users can create a wallet', function () {
     $this->actingAs($user)
         ->post('/wallets', [
             'name' => 'New Wallet',
-            'balance' => 500,
+            'initial_balance' => 500,
             'currency' => 'EUR',
         ])
         ->assertRedirect();
 
     $this->assertDatabaseHas('wallets', [
         'name' => 'New Wallet',
-        'balance' => 500,
+        'initial_balance' => 500,
         'currency' => 'EUR',
         'user_id' => $user->id,
     ]);
@@ -57,7 +57,7 @@ test('users can update their wallet', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
@@ -65,7 +65,7 @@ test('users can update their wallet', function () {
     $this->actingAs($user)
         ->put("/wallets/{$wallet->id}", [
             'name' => 'Updated Wallet',
-            'balance' => 1500,
+            'initial_balance' => 1500,
             'currency' => 'USD',
         ])
         ->assertRedirect();
@@ -73,7 +73,7 @@ test('users can update their wallet', function () {
     $this->assertDatabaseHas('wallets', [
         'id' => $wallet->id,
         'name' => 'Updated Wallet',
-        'balance' => 1500,
+        'initial_balance' => 1500,
         'currency' => 'USD',
     ]);
 });
@@ -83,7 +83,7 @@ test('users can delete their wallet', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
@@ -103,7 +103,7 @@ test('users cannot access wallets of other users', function () {
 
     $wallet = Wallet::create([
         'name' => 'Other User Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user2->id,
     ]);
@@ -119,7 +119,7 @@ test('users cannot access wallets of other users', function () {
     $this->actingAs($user1)
         ->put("/wallets/{$wallet->id}", [
             'name' => 'Hacked Wallet',
-            'balance' => 0,
+            'initial_balance' => 0,
             'currency' => 'USD',
         ])
         ->assertForbidden();
@@ -135,16 +135,16 @@ test('wallet validation rules are enforced', function () {
     $this->actingAs($user)
         ->post('/wallets', [
             'name' => '',
-            'balance' => 'not-a-number',
+            'initial_balance' => 'not-a-number',
             'currency' => 'INVALID',
         ])
-        ->assertSessionHasErrors(['name', 'balance', 'currency']);
+        ->assertSessionHasErrors(['name', 'initial_balance', 'currency']);
 
     $this->actingAs($user)
         ->post('/wallets', [
             'name' => 'Valid Wallet',
-            'balance' => -100, // Negative balance
+            'initial_balance' => -100, // Negative balance
             'currency' => 'USD',
         ])
-        ->assertSessionHasErrors(['balance']);
+        ->assertSessionHasErrors(['initial_balance']);
 });

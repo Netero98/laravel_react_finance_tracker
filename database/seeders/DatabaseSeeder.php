@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,44 +24,45 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create categories
-        $incomeCategories = [
+        $incomeCategories = new Collection([
             'Salary', 'Freelance', 'Investments', 'Gifts', 'Rental Income'
-        ];
+        ]);
 
-        $expenseCategories = [
+        $expenseCategories = new Collection([
             'Groceries', 'Utilities', 'Rent/Mortgage', 'Transportation',
             'Dining Out', 'Entertainment', 'Healthcare', 'Shopping',
             'Travel', 'Education', 'Personal Care'
-        ];
+        ]);
+
+        $savedIncomeCategories = new Collection();
+        $savedExpenseCategories = new Collection();
 
         foreach ($incomeCategories as $name) {
-            Category::create([
+            $savedIncomeCategories[] = Category::create([
                 'name' => $name,
-                'type' => 'income',
                 'user_id' => 1,
             ]);
         }
 
         foreach ($expenseCategories as $name) {
-            Category::create([
+            $savedExpenseCategories[] = Category::create([
                 'name' => $name,
-                'type' => 'expense',
                 'user_id' => 1,
             ]);
         }
 
         // Create wallets
         $wallets = [
-            ['name' => 'Main Account', 'balance' => 5000, 'currency' => 'USD'],
-            ['name' => 'Savings', 'balance' => 10000, 'currency' => 'USD'],
-            ['name' => 'Euro Account', 'balance' => 2000, 'currency' => 'EUR'],
-            ['name' => 'Investment Account', 'balance' => 15000, 'currency' => 'USD'],
+            ['name' => 'Main Account', 'initial_balance' => 576, 'currency' => 'USD'],
+            ['name' => 'Savings', 'initial_balance' => 43624, 'currency' => 'THB'],
+            ['name' => 'Euro Account', 'initial_balance' => 1054, 'currency' => 'EUR'],
+            ['name' => 'Investment Account', 'initial_balance' => 235547, 'currency' => 'RUB'],
         ];
 
         foreach ($wallets as $wallet) {
             Wallet::create([
                 'name' => $wallet['name'],
-                'balance' => $wallet['balance'],
+                'initial_balance' => $wallet['initial_balance'],
                 'currency' => $wallet['currency'],
                 'user_id' => 1,
             ]);
@@ -69,13 +71,11 @@ class DatabaseSeeder extends Seeder
         // Create transactions over the past 1 month
         $startDate = Carbon::now()->subMonths(1);
         $endDate = Carbon::now();
-
-        $incomeCategories = Category::where('type', 'income')->get();
-        $expenseCategories = Category::where('type', 'expense')->get();
         $walletIds = Wallet::pluck('id')->toArray();
 
         // Generate transactions
         $currentDate = clone $startDate;
+
         while ($currentDate <= $endDate) {
             // Monthly salary (first of each month)
             if ($currentDate->day === 1 || ($currentDate->eq($startDate) && $currentDate->day < 5)) {
@@ -83,22 +83,19 @@ class DatabaseSeeder extends Seeder
                     'amount' => mt_rand(3500, 4500),
                     'description' => 'Monthly Salary',
                     'date' => $currentDate->format('Y-m-d'),
-                    'type' => 'income',
-                    'category_id' => $incomeCategories->where('name', 'Salary')->first()->id,
+                    'category_id' => $savedIncomeCategories->where('name', 'Salary')->first()->id,
                     'wallet_id' => $walletIds[0], // Main Account
-                    'user_id' => 1,
                 ]);
             }
 
             // Random transactions throughout the month
             $numTransactions = mt_rand(2, 5);
             for ($i = 0; $i < $numTransactions; $i++) {
-                // 70% chance of expense, 30% chance of additional income
-                $isExpense = mt_rand(1, 10) <= 7;
+                $isExpense = mt_rand(1, 10) <= 4;
 
                 if ($isExpense) {
                     // Expense transaction
-                    $category = $expenseCategories->random();
+                    $category = $savedExpenseCategories->random();
                     $amount = -mt_rand(10, 500); // Negative for expenses
 
                     // Larger expenses occasionally
@@ -115,7 +112,7 @@ class DatabaseSeeder extends Seeder
                     };
                 } else {
                     // Income transaction
-                    $category = $incomeCategories->random();
+                    $category = $savedIncomeCategories->random();
                     $amount = mt_rand(50, 500);
 
                     // Occasionally larger income
@@ -139,10 +136,8 @@ class DatabaseSeeder extends Seeder
                     'amount' => $amount,
                     'description' => $description,
                     'date' => $currentDate->format('Y-m-d'),
-                    'type' => $isExpense ? 'expense' : 'income',
                     'category_id' => $category->id,
                     'wallet_id' => $wallet_id,
-                    'user_id' => 1,
                 ]);
             }
 

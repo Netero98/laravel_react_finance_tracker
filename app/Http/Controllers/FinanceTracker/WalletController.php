@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
 use App\Models\Wallet;
+use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,8 +24,8 @@ class WalletController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'balance' => 'required|numeric|min:0',
-            'currency' => 'required|string|size:3',
+            'initial_balance' => 'required|numeric|min:0',
+            'currency' => ['required', 'string', 'in:' . implode(',', ExchangeRateService::ALL_EXTERNAL_CURRENCIES)],
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -42,8 +43,8 @@ class WalletController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'balance' => 'required|numeric|min:0',
-            'currency' => 'required|string|size:3',
+            'initial_balance' => 'required|numeric|min:0',
+            'currency' => ['required', 'string', 'in:' . implode(',', ExchangeRateService::ALL_EXTERNAL_CURRENCIES)],
         ]);
 
         $wallet->update($validated);

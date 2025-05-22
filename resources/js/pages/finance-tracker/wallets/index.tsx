@@ -46,7 +46,7 @@ export default function Index({ wallets }: Props) {
     const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
     const [formData, setFormData] = useState({
         name: '',
-        balance: '',
+        initial_balance: '',
         currency: 'USD',
     });
 
@@ -59,14 +59,14 @@ export default function Index({ wallets }: Props) {
         }
         setIsOpen(false);
         setEditingWallet(null);
-        setFormData({ name: '', balance: '', currency: 'USD' });
+        setFormData({ name: '', initial_balance: '', currency: 'USD' });
     };
 
     const handleEdit = (wallet: Wallet) => {
         setEditingWallet(wallet);
         setFormData({
             name: wallet.name,
-            balance: wallet.balance.toString(),
+            initial_balance: wallet.initial_balance.toString(),
             currency: wallet.currency,
         });
         setIsOpen(true);
@@ -109,9 +109,9 @@ export default function Index({ wallets }: Props) {
                                         type="number"
                                         step="0.01"
                                         placeholder="Initial Balance"
-                                        value={formData.balance}
+                                        value={formData.initial_balance}
                                         onChange={(e) =>
-                                            setFormData({ ...formData, balance: e.target.value })
+                                            setFormData({ ...formData, initial_balance: e.target.value })
                                         }
                                     />
                                 </div>
@@ -137,7 +137,7 @@ export default function Index({ wallets }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Balance</TableHead>
+                            <TableHead>Initial balance</TableHead>
                             <TableHead>Currency</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -146,7 +146,7 @@ export default function Index({ wallets }: Props) {
                         {wallets.data.map((wallet) => (
                             <TableRow key={wallet.id}>
                                 <TableCell>{wallet.name}</TableCell>
-                                <TableCell>{Number(wallet.balance).toFixed(2)}</TableCell>
+                                <TableCell>{Number(wallet.initial_balance).toFixed(2)}</TableCell>
                                 <TableCell>{wallet.currency}</TableCell>
                                 <TableCell>
                                     <Button

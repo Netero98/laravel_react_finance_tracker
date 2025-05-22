@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    public const PROP_NAME = 'name';
+    public const PROP_USER_ID = 'user_id';
+
     protected $fillable = [
         'name',
-        'type', // 'income' or 'expense'
         'user_id',
     ];
 

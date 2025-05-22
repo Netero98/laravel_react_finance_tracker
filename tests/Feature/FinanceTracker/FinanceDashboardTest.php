@@ -30,20 +30,18 @@ test('finance dashboard shows correct balance history', function () {
 
     $wallet = Wallet::create([
         'name' => 'Test Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $incomeCategory = Category::create([
         'name' => 'Income Category',
-        'type' => 'income',
         'user_id' => $user->id,
     ]);
 
     $expenseCategory = Category::create([
         'name' => 'Expense Category',
-        'type' => 'expense',
         'user_id' => $user->id,
     ]);
 
@@ -52,30 +50,24 @@ test('finance dashboard shows correct balance history', function () {
         'amount' => 500,
         'description' => 'Income Transaction',
         'date' => now()->subDays(5),
-        'type' => 'income',
         'category_id' => $incomeCategory->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     $transaction2 = Transaction::create([
         'amount' => 200,
         'description' => 'Expense Transaction',
         'date' => now()->subDays(3),
-        'type' => 'expense',
         'category_id' => $expenseCategory->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     $transaction3 = Transaction::create([
         'amount' => 300,
         'description' => 'Another Income',
         'date' => now()->subDays(1),
-        'type' => 'income',
         'category_id' => $incomeCategory->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user->id,
     ]);
 
     $this->actingAs($user)
@@ -94,14 +86,14 @@ test('finance dashboard shows correct current balance', function () {
     // Create wallets with different currencies
     $usdWallet = Wallet::create([
         'name' => 'USD Wallet',
-        'balance' => 1000,
+        'initial_balance' => 1000,
         'currency' => 'USD',
         'user_id' => $user->id,
     ]);
 
     $eurWallet = Wallet::create([
         'name' => 'EUR Wallet',
-        'balance' => 500,
+        'initial_balance' => 500,
         'currency' => 'EUR',
         'user_id' => $user->id,
     ]);
@@ -126,14 +118,13 @@ test('finance dashboard only shows data for the authenticated user', function ()
     // Create wallet and transactions for user2
     $wallet = Wallet::create([
         'name' => 'Other User Wallet',
-        'balance' => 2000,
+        'initial_balance' => 2000,
         'currency' => 'USD',
         'user_id' => $user2->id,
     ]);
 
     $category = Category::create([
         'name' => 'Other User Category',
-        'type' => 'income',
         'user_id' => $user2->id,
     ]);
 
@@ -141,10 +132,8 @@ test('finance dashboard only shows data for the authenticated user', function ()
         'amount' => 1000,
         'description' => 'Other User Transaction',
         'date' => now()->subDays(1),
-        'type' => 'income',
         'category_id' => $category->id,
         'wallet_id' => $wallet->id,
-        'user_id' => $user2->id,
     ]);
 
     // User1 should not see user2's data

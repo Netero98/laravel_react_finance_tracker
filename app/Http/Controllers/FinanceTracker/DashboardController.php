@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Services\ExchangeRateService;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -25,21 +26,31 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // Get all transactions for the authenticated user ordered by date
-        $transactions = Transaction::with(['wallet'])
+        $allWalletsWithTransactionsAndCategories = Wallet::with([
+            Wallet::RELATION_TRANSACTIONS => function ($query) {
+                $query->with(Transaction::RELATION_CATEGORY);
+            }
+        ])
             ->where('user_id', auth()->id())
-            ->orderBy('date')
             ->get();
 
-        // Get current month expense transactions
+        /**
+         * @var Collection $allTransactionsWithCategories
+         */
+        $allTransactionsWithCategories = $allWalletsWithTransactionsAndCategories->flatMap(function ($wallet) {
+            return $wallet->transactions;
+        });
+
         $currentMonth = now()->startOfMonth();
         $nextMonth = now()->copy()->addMonth()->startOfMonth();
 
-        $currentMonthExpenses = Transaction::with(['category'])
-            ->where('user_id', auth()->id())
-            ->where('type', 'expense')
-            ->whereBetween('date', [$currentMonth, $nextMonth])
-            ->get();
+        $currentMonthExpenseTransactionsWithCategories = $allTransactionsWithCategories
+            ->where(Transaction::PROP_AMOUNT, '<', 0)
+            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth]);
+
+        $currentMonthIncomeTransactionsWithCategories = $allTransactionsWithCategories
+            ->where(Transaction::PROP_AMOUNT, '>', 0)
+            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth]);
 
         $exchangeRates = $this->getExchangeRates();
 
@@ -48,12 +59,12 @@ class DashboardController extends Controller
         $runningBalance = 0;
         $dates = [];
 
-        foreach ($transactions as $transaction) {
+        foreach ($allTransactionsWithCategories as $transaction) {
             $date = $transaction->date->format('Y-m-d');
             $amount = $transaction->amount;
 
             // Convert to USD if needed
-            if ($transaction->wallet->currency !== 'USD') {
+            if ($transaction->wallet->currency !== ExchangeRateService::USD) {
                 $rate = $exchangeRates[$transaction->wallet->currency] ?? 1;
                 $amount = $amount / $rate; // Convert to USD
             }
@@ -79,34 +90,37 @@ class DashboardController extends Controller
         }
 
         // Calculate current total balance in USD for the authenticated user
-        $wallets = Wallet::where('user_id', auth()->id())->get();
-        $currentBalance = $wallets->reduce(function ($total, $wallet) use ($exchangeRates) {
-            $rate = $wallet->currency === 'USD' ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
-            return $total + ($wallet->balance / $rate);
+        $currentBalance = $allWalletsWithTransactionsAndCategories->reduce(function ($total, Wallet $wallet) use ($exchangeRates) {
+            $rate = $wallet->currency === ExchangeRateService::USD
+                ? 1
+                : $exchangeRates[$wallet->currency];
+
+            return $total + ($wallet->getInitialBalancePlusTransactionsDelta() / $rate);
         }, 0);
 
         // Prepare wallet data for pie chart
-        $walletData = $wallets->map(function ($wallet) use ($exchangeRates) {
-            $rate = $wallet->currency === 'USD' ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
-            $balanceUSD = $wallet->balance / $rate;
+        $walletData = $allWalletsWithTransactionsAndCategories->map(function (Wallet $wallet) use ($exchangeRates) {
+            $rate = $wallet->currency === ExchangeRateService::USD ? 1 : ($exchangeRates[$wallet->currency] ?? 1);
+            $balanceUSD = $wallet->getInitialBalancePlusTransactionsDelta() / $rate;
 
             return [
                 'name' => $wallet->name,
-                'balance' => $balanceUSD,
+                'currentBalanceUSD' => $balanceUSD,
                 'currency' => $wallet->currency,
-                'originalBalance' => $wallet->balance
+                'currentBalance' => $wallet->getInitialBalancePlusTransactionsDelta()
             ];
         });
 
         // Group current month expenses by category
         $expensesByCategory = [];
-        foreach ($currentMonthExpenses as $expense) {
-            $categoryName = $expense->category ? $expense->category->name : 'Uncategorized';
-            $amount = $expense->amount;
+
+        foreach ($currentMonthExpenseTransactionsWithCategories as $expenseTransaction) {
+            $categoryName = $expenseTransaction->category ? $expenseTransaction->category->name : 'Uncategorized';
+            $amount = $expenseTransaction->amount;
 
             // Convert to USD if needed
-            if ($expense->wallet && $expense->wallet->currency !== 'USD') {
-                $rate = $exchangeRates[$expense->wallet->currency] ?? 1;
+            if ($expenseTransaction->wallet && $expenseTransaction->wallet->currency !== ExchangeRateService::USD) {
+                $rate = $exchangeRates[$expenseTransaction->wallet->currency] ?? 1;
                 $amount = $amount / $rate; // Convert to USD
             }
 
@@ -126,22 +140,16 @@ class DashboardController extends Controller
             ];
         }
 
-        // Get current month income transactions
-        $currentMonthIncome = Transaction::with(['category'])
-            ->where('user_id', auth()->id())
-            ->where('type', 'income')
-            ->whereBetween('date', [$currentMonth, $nextMonth])
-            ->get();
-
-        // Group current month income by category
+        // Group current month incomeTransaction by category
         $incomeByCategory = [];
-        foreach ($currentMonthIncome as $income) {
-            $categoryName = $income->category ? $income->category->name : 'Uncategorized';
-            $amount = $income->amount;
+
+        foreach ($currentMonthIncomeTransactionsWithCategories as $incomeTransaction) {
+            $categoryName = $incomeTransaction->category ? $incomeTransaction->category->name : 'Uncategorized';
+            $amount = $incomeTransaction->amount;
 
             // Convert to USD if needed
-            if ($income->wallet && $income->wallet->currency !== 'USD') {
-                $rate = $exchangeRates[$income->wallet->currency] ?? 1;
+            if ($incomeTransaction->wallet && $incomeTransaction->wallet->currency !== ExchangeRateService::USD) {
+                $rate = $exchangeRates[$incomeTransaction->wallet->currency] ?? 1;
                 $amount = $amount / $rate; // Convert to USD
             }
 
