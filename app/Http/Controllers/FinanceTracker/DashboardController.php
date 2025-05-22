@@ -5,10 +5,24 @@ namespace App\Http\Controllers\FinanceTracker;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Services\ExchangeRateService;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
+    /**
+     * The exchange rate service instance.
+     */
+    private ExchangeRateService $exchangeRateService;
+
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(ExchangeRateService $exchangeRateService)
+    {
+        $this->exchangeRateService = $exchangeRateService;
+    }
+
     public function index()
     {
         // Get all transactions for the authenticated user ordered by date
@@ -27,7 +41,6 @@ class DashboardController extends Controller
             ->whereBetween('date', [$currentMonth, $nextMonth])
             ->get();
 
-        // Get exchange rates (you'd need to implement this)
         $exchangeRates = $this->getExchangeRates();
 
         // Calculate cumulative balance history
@@ -157,20 +170,13 @@ class DashboardController extends Controller
         ]);
     }
 
-    // Example method to get exchange rates (you'd implement this with a real API)
-    private function getExchangeRates()
+    /**
+     * Get exchange rates from the service
+     *
+     * @return array
+     */
+    private function getExchangeRates(): array
     {
-        // In a real app, you would fetch these from a currency API
-        // Example: return Http::get('https://api.exchangerate-api.com/v4/latest/USD')->json()['rates'];
-
-        // For demonstration, using static rates
-        return [
-            'USD' => 1,
-            'EUR' => 0.92,
-            'GBP' => 0.78,
-            'THB' => 35.5,
-            'RUB'=> 80.5,
-            // Add more currencies as needed
-        ];
+        return $this->exchangeRateService->getExchangeRates();
     }
 }
