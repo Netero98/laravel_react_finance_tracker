@@ -5,15 +5,8 @@ ifndef cmd
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
-init: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+init: down up-detached composer-i migrate-fresh seed npm-i npm-run-dev-detached
 
-prepare-env:
-	@if [ ! -f .env ]; then \
-		echo "Copying .env.example to .env"; \
-		cp .env.example .env; \
-	else \
-		echo ".env already exists. Skipping."; \
-	fi
 up-detached:
 	docker compose -f compose.dev.yaml up -d
 up:
@@ -24,8 +17,6 @@ migrate-fresh:
 	make exec cmd="php artisan migrate:fresh"
 seed:
 	make exec cmd="php artisan db:seed"
-app-key-gen:
-	make exec cmd="php artisan key:generate"
 npm-i:
 	make exec cmd="npm install"
 npm-run-dev-detached:
