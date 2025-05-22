@@ -48,9 +48,8 @@ interface Props {
     currentBalance: number;
     walletData: {
         name: string;
-        balance: number;
+        walletCurrentBalanceUSD: number;
         currency: string;
-        originalBalance: number;
     }[];
     currentMonthExpenses: {
         name: string;
@@ -192,7 +191,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         labels: walletData.map(wallet => wallet.name),
         datasets: [
             {
-                data: walletData.map(wallet => wallet.balance),
+                data: walletData.map(wallet => wallet.walletCurrentBalanceUSD),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.6)',
                     'rgba(54, 162, 235, 0.6)',

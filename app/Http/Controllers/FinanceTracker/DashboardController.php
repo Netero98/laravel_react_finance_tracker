@@ -105,9 +105,8 @@ class DashboardController extends Controller
 
             return [
                 'name' => $wallet->name,
-                'currentBalanceUSD' => $balanceUSD,
+                'walletCurrentBalanceUSD' => $balanceUSD,
                 'currency' => $wallet->currency,
-                'currentBalance' => $wallet->getInitialBalancePlusTransactionsDelta()
             ];
         });
 
