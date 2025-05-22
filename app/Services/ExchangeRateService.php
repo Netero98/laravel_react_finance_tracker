@@ -10,7 +10,8 @@ class ExchangeRateService
 {
     private const CACHE_KEY = 'exchange_rates';
 
-    public const CACHE_TTL = 7200;
+    public const FRESH_TTL = 7200;
+    public const STALE_TTL = 14400;
 
     /**
      * Get exchange rates with caching
@@ -19,8 +20,7 @@ class ExchangeRateService
      */
     public function getExchangeRates(): array
     {
-        // Try to get exchange rates from cache first
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+        return Cache::flexible(self::CACHE_KEY, [self::FRESH_TTL, self::STALE_TTL] , function () {
             Log::info('Fetching exchange rates from API');
             return $this->fetchExchangeRates();
         });
