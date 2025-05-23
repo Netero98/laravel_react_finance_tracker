@@ -74,25 +74,25 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
     // Define the initial layouts for different breakpoints
     const defaultLayouts = {
         lg: [
-            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 2, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 1, y: 1, w: 2, h: 2, minW: 2, minH: 1 }
+            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 2, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 4, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'income', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 2, y: 1, w: 4, h: 2, minW: 2, minH: 1 }
         ],
         md: [
-            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 1, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 1, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 2, w: 2, h: 2, minW: 2, minH: 1 }
+            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 2, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'income', x: 2, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 2, w: 4, h: 2, minW: 2, minH: 1 }
         ],
         sm: [
-            { i: 'balance', x: 0, y: 0, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 0, y: 1, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 0, y: 2, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 0, y: 3, w: 1, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 4, w: 1, h: 2, minW: 1, minH: 1 }
+            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'wallet', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'expenses', x: 0, y: 2, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'income', x: 0, y: 3, w: 2, h: 1, minW: 1, minH: 1 },
+            { i: 'history', x: 0, y: 4, w: 2, h: 2, minW: 1, minH: 1 }
         ]
     };
 
@@ -111,7 +111,33 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         const savedLayouts = localStorage.getItem('dashboardLayouts');
         if (savedLayouts) {
             try {
-                setLayouts(JSON.parse(savedLayouts));
+                const parsedLayouts = JSON.parse(savedLayouts);
+
+                // Ensure minW and minH values are preserved from defaultLayouts
+                const updatedLayouts = { ...parsedLayouts };
+
+                // For each breakpoint (lg, md, sm)
+                Object.keys(updatedLayouts).forEach(breakpoint => {
+                    // For each item in the layout
+                    if (updatedLayouts[breakpoint]) {
+                        updatedLayouts[breakpoint] = updatedLayouts[breakpoint].map((item: any) => {
+                            // Find the corresponding item in defaultLayouts
+                            const defaultItem = defaultLayouts[breakpoint as keyof typeof defaultLayouts]?.find((d: any) => d.i === item.i);
+
+                            // If found, ensure minW and minH are preserved
+                            if (defaultItem) {
+                                return {
+                                    ...item,
+                                    minW: defaultItem.minW,
+                                    minH: defaultItem.minH
+                                };
+                            }
+                            return item;
+                        });
+                    }
+                });
+
+                setLayouts(updatedLayouts);
             } catch (e) {
                 console.error('Failed to parse saved layouts', e);
             }
@@ -134,8 +160,30 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
 
     // Save layouts to localStorage when they change
     const handleLayoutChange = (currentLayout: any, allLayouts: any) => {
-        setLayouts(allLayouts);
-        localStorage.setItem('dashboardLayouts', JSON.stringify(allLayouts));
+        // Ensure minW and minH values are preserved
+        const updatedLayouts = { ...allLayouts };
+
+        // For each breakpoint (lg, md, sm)
+        Object.keys(updatedLayouts).forEach(breakpoint => {
+            // For each item in the layout
+            updatedLayouts[breakpoint] = updatedLayouts[breakpoint].map((item: any) => {
+                // Find the corresponding item in defaultLayouts
+                const defaultItem = defaultLayouts[breakpoint as keyof typeof defaultLayouts]?.find((d: any) => d.i === item.i);
+
+                // If found, ensure minW and minH are preserved
+                if (defaultItem) {
+                    return {
+                        ...item,
+                        minW: defaultItem.minW,
+                        minH: defaultItem.minH
+                    };
+                }
+                return item;
+            });
+        });
+
+        setLayouts(updatedLayouts);
+        localStorage.setItem('dashboardLayouts', JSON.stringify(updatedLayouts));
     };
 
     // Toggle chart visibility
@@ -313,6 +361,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 // Reset visible charts to show all charts
                                 const allChartIds = availableCharts.map(chart => chart.id);
                                 setVisibleCharts(allChartIds);
+                                localStorage.setItem('dashboardLayouts', JSON.stringify(defaultLayouts));
                                 localStorage.setItem('dashboardVisibleCharts', JSON.stringify(allChartIds));
                             }}
                             className="rounded-md bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
@@ -362,7 +411,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         className="layout"
                         layouts={layouts}
                         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-                        cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
+                        cols={{ lg: 6, md: 4, sm: 2, xs: 2, xxs: 2 }}
                         rowHeight={150}
                         onLayoutChange={handleLayoutChange}
                         isDraggable={true}
