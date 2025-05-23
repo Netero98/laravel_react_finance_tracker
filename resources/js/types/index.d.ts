@@ -45,7 +45,6 @@ export interface User {
 export interface Category {
     id: number;
     name: string;
-    type: 'income' | 'expense';
     created_at: string;
     updated_at: string;
 }
@@ -53,7 +52,7 @@ export interface Category {
 export interface Wallet {
     id: number;
     name: string;
-    balance: number;
+    initial_balance: number;
     currency: string;
     created_at: string;
     updated_at: string;
@@ -64,7 +63,6 @@ export interface Transaction {
     amount: number;
     description: string | null;
     date: string;
-    type: 'income' | 'expense';
     category_id: number;
     wallet_id: number;
     category: Category;
