@@ -21,8 +21,8 @@ services:
     # For the php-fpm service, we will create a custom image to install the necessary PHP extensions and setup proper permissions.
     build:
       context: .
-      dockerfile: ./docker/common/php-fpm/Dockerfile
-      target: development
+      dockerfile: ./docker/common/Dockerfile
+      target: php-fpm-development
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}

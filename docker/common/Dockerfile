@@ -70,8 +70,7 @@ COPY . /var/www
 # Install Node.js dependencies and build assets
 RUN npm ci && npm run build
 
-# Stage 2: Production environment
-FROM php:8.3-fpm AS production
+FROM php:8.3-fpm AS php-fpm-pre-production
 
 # Install only runtime libraries needed in production
 # libfcgi-bin and procps are required for the php-fpm-healthcheck script
@@ -133,12 +132,12 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 EXPOSE 9000
 CMD ["php-fpm"]
 
-FROM production as production-v2
+FROM php-fpm-pre-production as php-fpm-production
 
 COPY --from=npm-builder /var/www/public /var/www/public
 
 # Stage 3: Development image
-FROM production AS development
+FROM php-fpm-pre-production AS php-fpm-development
 
 # Use ARG to define environment variables passed from the Docker build command or Docker Compose.
 ARG XDEBUG_ENABLED=true
@@ -197,3 +196,25 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
+
+FROM nginx:alpine as nginx-production
+
+# Copy custom Nginx configuration
+# -----------------------------------------------------------
+# Replace the default Nginx configuration with our custom one
+# that is optimized for serving a Laravel application.
+# -----------------------------------------------------------
+COPY ./docker/production/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Copy Laravel's public assets from the builder stage
+# -----------------------------------------------------------
+# We only need the 'public' directory from our Laravel app.
+# -----------------------------------------------------------
+COPY --from=npm-builder /var/www/public /var/www/public
+
+# Set the working directory to the public folder
+WORKDIR /var/www/public
+
+# Expose port 80 and start Nginx
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
