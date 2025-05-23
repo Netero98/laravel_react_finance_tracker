@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable redis \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-   
+
 # Set the working directory inside the container
 WORKDIR /var/www
 
@@ -39,9 +39,9 @@ WORKDIR /var/www
 # Artisan commands like `php artisan package:discover`. If the
 # application code (including the `artisan` file) is not
 # present, these commands will fail, leading to build errors.
-# 
-# By copying the entire application code before running 
-# `composer install`, we ensure that all necessary files are 
+#
+# By copying the entire application code before running
+# `composer install`, we ensure that all necessary files are
 # available, allowing these scripts to run successfully.
 # In other cases, it would be possible to copy composer files
 # first, to leverage Docker's layer caching mechanism.
@@ -52,6 +52,23 @@ COPY . /var/www
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
 
+FROM debian AS npm-builder
+
+# Install Node.js and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    nodejs \
+    npm \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy Laravel application code
+COPY . /var/www
+
+# Install Node.js dependencies and build assets
+RUN npm ci && npm run build
 
 # Stage 2: Production environment
 FROM php:8.3-fpm AS production
@@ -116,6 +133,9 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 EXPOSE 9000
 CMD ["php-fpm"]
 
+FROM production as production-v2
+
+COPY --from=npm-builder /var/www/public /var/www/public
 
 # Stage 3: Development image
 FROM production AS development
