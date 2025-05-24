@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PWA Test Page</h1>
+
+    <div class="card">
+        <h2>How to Test Your PWA</h2>
+        <p>Follow these steps to verify that your Progressive Web App is working correctly:</p>
+
+        <h3>1. Check Service Worker Registration</h3>
+        <ul>
+            <li>Open Chrome DevTools (F12 or Right-click > Inspect)</li>
+            <li>Go to the "Application" tab</li>
+            <li>Select "Service Workers" in the left sidebar</li>
+            <li>Verify that your service worker is registered and active</li>
+        </ul>
+
+        <h3>2. Verify Manifest</h3>
+        <ul>
+            <li>In Chrome DevTools, go to the "Application" tab</li>
+            <li>Select "Manifest" in the left sidebar</li>
+            <li>Check that your manifest is properly loaded and parsed</li>
+            <li>Verify that all icons are loading correctly</li>
+        </ul>
+
+        <h3>3. Test Offline Functionality</h3>
+        <ul>
+            <li>In Chrome DevTools, go to the "Network" tab</li>
+            <li>Check the "Offline" checkbox to simulate offline mode</li>
+            <li>Refresh the page and verify that it still loads from the cache</li>
+            <li>Navigate to different pages to test offline navigation</li>
+        </ul>
+
+        <h3>4. Test Installation</h3>
+        <ul>
+            <li>On Chrome desktop, look for the install icon in the address bar</li>
+            <li>On mobile devices, you should see an "Add to Home Screen" prompt</li>
+            <li>Try installing the app and launching it from your home screen</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>PWA Audit</h2>
+        <p>For a comprehensive check of your PWA, use Lighthouse:</p>
+        <ul>
+            <li>In Chrome DevTools, go to the "Lighthouse" tab</li>
+            <li>Check the "Progressive Web App" category</li>
+            <li>Click "Generate report"</li>
+            <li>Review the results and address any issues</li>
+        </ul>
+    </div>
+
+    <script>
+        // Check if service worker is registered
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(registration => {
+                if (registration) {
+                    console.log('Service Worker is registered:', registration);
+                    document.body.insertAdjacentHTML('beforeend',
+                        '<div class="card" style="background-color: #e6ffe6;">' +
+                        '<h2>✅ Service Worker Detected</h2>' +
+                        '<p>Your service worker is registered and active.</p>' +
+                        '</div>');
+                } else {
+                    console.log('No Service Worker registration found');
+                    document.body.insertAdjacentHTML('beforeend',
+                        '<div class="card" style="background-color: #ffe6e6;">' +
+                        '<h2>❌ No Service Worker Detected</h2>' +
+                        '<p>Your service worker is not registered. Check the console for errors.</p>' +
+                        '</div>');
+                }
+            });
+        } else {
+            console.log('Service Workers not supported');
+            document.body.insertAdjacentHTML('beforeend',
+                '<div class="card" style="background-color: #ffe6e6;">' +
+                '<h2>❌ Service Workers Not Supported</h2>' +
+                '<p>Your browser does not support Service Workers, which are required for PWAs.</p>' +
+                '</div>');
+        }
+    </script>
+</body>
+</html>

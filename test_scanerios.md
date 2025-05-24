@@ -1,6 +1,7 @@
 # Тут собраны все требования к проекту за всю историю. ✅ - значит под контролем автотеста
 
 - /dashboard
+  - Оптимизирован DashboardController, минимизация запросов + кэширование
   - With and without data all charts look good and logical
   - With and without data both light and dark themes look good
   - Курс доллара считается правильно согласно актуальным курсам валют на рынке

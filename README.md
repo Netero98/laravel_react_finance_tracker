@@ -9,4 +9,4 @@ README.md: https://github.com/dockersamples/laravel-docker-examples
     ```
 
 ### Tech debt:
-- Оптимизировать DashboardController, минимизация запросов + кэширование
+
