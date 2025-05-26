@@ -51,7 +51,6 @@ export default function Index({ transactions, categories, wallets }: Props) {
         amount: '',
         description: '',
         date: new Date().toISOString().split('T')[0],
-        type: 'expense' as 'income' | 'expense',
         category_id: '',
         wallet_id: '',
     });
@@ -69,7 +68,6 @@ export default function Index({ transactions, categories, wallets }: Props) {
             amount: '',
             description: '',
             date: new Date().toISOString().split('T')[0],
-            type: 'expense',
             category_id: '',
             wallet_id: '',
         });
@@ -142,22 +140,6 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                 </div>
                                 <div>
                                     <Select
-                                        value={formData.type}
-                                        onValueChange={(value) =>
-                                            setFormData({ ...formData, type: value as 'income' | 'expense' })
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="income">Income</SelectItem>
-                                            <SelectItem value="expense">Expense</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <Select
                                         value={formData.category_id}
                                         onValueChange={(value) =>
                                             setFormData({ ...formData, category_id: value })
@@ -167,9 +149,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {categories
-                                                .filter((category) => category.type === formData.type)
-                                                .map((category) => (
+                                            {categories.map((category) => (
                                                     <SelectItem
                                                         key={category.id}
                                                         value={category.id.toString()}
@@ -231,12 +211,12 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                 <TableCell className="hidden lg:table-cell">{transaction.description}</TableCell>
                                 <TableCell
                                     className={
-                                        transaction.type === 'income'
+                                        transaction.amount > 0
                                             ? 'text-green-600'
                                             : 'text-red-600'
                                     }
                                 >
-                                    {transaction.type === 'income' ? '+' : '-'}
+                                    {transaction.amount > 0 ? '+' : '-'}
                                     {Math.abs(transaction.amount).toFixed(2)}
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">{transaction.wallet.name}</TableCell>
