@@ -347,7 +347,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-4 flex items-center justify-between gap-5">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
                     <div className="flex space-x-2">
                         <button
@@ -428,7 +428,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         rowHeight={150}
                         onLayoutChange={handleLayoutChange}
                         isDraggable={isDraggable}
-                        isResizable={true}
+                        isResizable={isDraggable}
                         margin={[16, 16]}
                         containerPadding={[0, 0]}
                     >
