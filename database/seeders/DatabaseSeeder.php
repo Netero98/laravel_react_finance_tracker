@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'created_at' => Carbon::now()->subMonths(2),
         ]);
 
         // Create categories

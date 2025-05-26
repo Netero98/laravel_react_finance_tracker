@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Wallet;
 use App\Services\ExchangeRateService;
 use Illuminate\Support\Collection;
@@ -26,6 +27,8 @@ class DashboardController extends Controller
 
     public function index()
     {
+        $exchangeRates = $this->getExchangeRates();
+
         $allWalletsWithTransactionsAndCategories = Wallet::with([
             Wallet::RELATION_TRANSACTIONS => function ($query) {
                 $query->with(Transaction::RELATION_CATEGORY);
@@ -34,12 +37,20 @@ class DashboardController extends Controller
             ->where('user_id', auth()->id())
             ->get();
 
+        $initialBalance = $allWalletsWithTransactionsAndCategories->reduce(function ($total, Wallet $wallet) use ($exchangeRates) {
+            $rate = $exchangeRates[$wallet->currency];
+
+            return $total + $wallet->initial_balance / $rate;
+        });
+
         /**
          * @var Collection $allTransactionsWithCategories
          */
         $allTransactionsWithCategories = $allWalletsWithTransactionsAndCategories->flatMap(function ($wallet) {
             return $wallet->transactions;
         });
+
+        $allTransactionsWithCategories = $allTransactionsWithCategories->sortBy(Transaction::PROP_DATE);
 
         $currentMonth = now()->startOfMonth();
         $nextMonth = now()->copy()->addMonth()->startOfMonth();
@@ -52,12 +63,18 @@ class DashboardController extends Controller
             ->where(Transaction::PROP_AMOUNT, '>', 0)
             ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth]);
 
-        $exchangeRates = $this->getExchangeRates();
-
         // Calculate cumulative balance history
         $balanceHistory = [];
-        $runningBalance = 0;
         $dates = [];
+
+        /**
+         * @var User $authenticatedUser
+         */
+        $authenticatedUser = auth()->user();
+        $theFirstPossibleDataForTransaction = $authenticatedUser->created_at->format('Y-m-d') ;
+        $dates[$theFirstPossibleDataForTransaction] = $theFirstPossibleDataForTransaction;
+        $balanceHistory[$theFirstPossibleDataForTransaction] = $initialBalance;
+        $previousBalance = $initialBalance;
 
         foreach ($allTransactionsWithCategories as $transaction) {
             $date = $transaction->date->format('Y-m-d');
@@ -69,13 +86,13 @@ class DashboardController extends Controller
                 $amount = $amount / $rate; // Convert to USD
             }
 
-            $runningBalance += $amount;
-
             // Store the balance for this date
             if (isset($balanceHistory[$date])) {
-                $balanceHistory[$date] = $runningBalance;
+                $balanceHistory[$date] += $amount;
+                $previousBalance = $balanceHistory[$date];
             } else {
-                $balanceHistory[$date] = $runningBalance;
+                $balanceHistory[$date] = $previousBalance + $amount;
+                $previousBalance = $balanceHistory[$date];
                 $dates[] = $date;
             }
         }

@@ -204,7 +204,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
     };
     // Line chart data for balance history
     const lineChartData: any = {
-        labels: balanceHistory.map(item => new Date(item.date).toLocaleDateString()),
+        labels: balanceHistory.map(item => item.date),
         datasets: [
             {
                 label: 'USD',
