@@ -105,6 +105,9 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
     // State to control settings panel visibility
     const [showSettings, setShowSettings] = useState(false);
 
+    // State to control whether charts are draggable
+    const [isDraggable, setIsDraggable] = useState(false);
+
     // Load saved layouts and visible charts from localStorage if available
     useEffect(() => {
         // Load saved layouts
@@ -355,6 +358,16 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             <span>Charts</span>
                         </button>
                         <button
+                            onClick={() => setIsDraggable(!isDraggable)}
+                            className={`rounded-md px-3 py-1 text-sm ${
+                                isDraggable
+                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                        >
+                            {isDraggable ? 'Dragging On' : 'Drag Charts'}
+                        </button>
+                        <button
                             onClick={() => {
                                 // Reset layout
                                 setLayouts(defaultLayouts);
@@ -414,7 +427,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         cols={{ lg: 6, md: 4, sm: 2, xs: 2, xxs: 2 }}
                         rowHeight={150}
                         onLayoutChange={handleLayoutChange}
-                        isDraggable={true}
+                        isDraggable={isDraggable}
                         isResizable={true}
                         margin={[16, 16]}
                         containerPadding={[0, 0]}
