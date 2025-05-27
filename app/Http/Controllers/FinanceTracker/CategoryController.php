@@ -38,6 +38,10 @@ class CategoryController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        if ($category->is_system) {
+            abort(403, 'System categories cannot be modified.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -51,6 +55,10 @@ class CategoryController extends Controller
     {
         if ($category->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        if ($category->is_system) {
+            abort(403, 'System categories cannot be deleted.');
         }
 
         $category->delete();

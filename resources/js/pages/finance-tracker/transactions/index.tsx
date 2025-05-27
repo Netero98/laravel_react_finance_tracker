@@ -53,23 +53,34 @@ export default function Index({ transactions, categories, wallets }: Props) {
         date: new Date().toISOString().split('T')[0],
         category_id: '',
         wallet_id: '',
+        from_wallet_id: '',
+        to_wallet_id: '',
     });
+
+    const [isTransfer, setIsTransfer] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        const dataToSubmit = { ...formData };
+
         if (editingTransaction) {
-            router.put(`/transactions/${editingTransaction.id}`, formData);
+            router.put(`/transactions/${editingTransaction.id}`, dataToSubmit);
         } else {
-            router.post('/transactions', formData);
+            router.post('/transactions', dataToSubmit);
         }
+
         setIsOpen(false);
         setEditingTransaction(null);
+        setIsTransfer(false);
         setFormData({
             amount: '',
             description: '',
             date: new Date().toISOString().split('T')[0],
             category_id: '',
             wallet_id: '',
+            from_wallet_id: '',
+            to_wallet_id: '',
         });
     };
 
@@ -141,9 +152,14 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                 <div>
                                     <Select
                                         value={formData.category_id}
-                                        onValueChange={(value) =>
-                                            setFormData({ ...formData, category_id: value })
-                                        }
+                                        onValueChange={(value) => {
+                                            const selectedCategory = categories.find(
+                                                (cat) => cat.id.toString() === value
+                                            );
+                                            const isTransferCategory = selectedCategory?.name === 'Transfer' && selectedCategory?.is_system;
+                                            setIsTransfer(isTransferCategory);
+                                            setFormData({ ...formData, category_id: value });
+                                        }}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
@@ -160,28 +176,79 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div>
-                                    <Select
-                                        value={formData.wallet_id}
-                                        onValueChange={(value) =>
-                                            setFormData({ ...formData, wallet_id: value })
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select wallet" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {wallets.map((wallet) => (
-                                                <SelectItem
-                                                    key={wallet.id}
-                                                    value={wallet.id.toString()}
-                                                >
-                                                    {wallet.name} ({wallet.currency})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                {!isTransfer ? (
+                                    <div>
+                                        <Select
+                                            value={formData.wallet_id}
+                                            onValueChange={(value) =>
+                                                setFormData({ ...formData, wallet_id: value })
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select wallet" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {wallets.map((wallet) => (
+                                                    <SelectItem
+                                                        key={wallet.id}
+                                                        value={wallet.id.toString()}
+                                                    >
+                                                        {wallet.name} ({wallet.currency})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">From Wallet</label>
+                                            <Select
+                                                value={formData.from_wallet_id}
+                                                onValueChange={(value) =>
+                                                    setFormData({ ...formData, from_wallet_id: value, wallet_id: value })
+                                                }
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select source wallet" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {wallets.map((wallet) => (
+                                                        <SelectItem
+                                                            key={wallet.id}
+                                                            value={wallet.id.toString()}
+                                                        >
+                                                            {wallet.name} ({wallet.currency})
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">To Wallet</label>
+                                            <Select
+                                                value={formData.to_wallet_id}
+                                                onValueChange={(value) =>
+                                                    setFormData({ ...formData, to_wallet_id: value })
+                                                }
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select destination wallet" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {wallets.map((wallet) => (
+                                                        <SelectItem
+                                                            key={wallet.id}
+                                                            value={wallet.id.toString()}
+                                                        >
+                                                            {wallet.name} ({wallet.currency})
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </>
+                                )}
                                 <Button type="submit">
                                     {editingTransaction ? 'Update' : 'Create'}
                                 </Button>

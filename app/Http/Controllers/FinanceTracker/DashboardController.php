@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
@@ -57,11 +58,19 @@ class DashboardController extends Controller
 
         $currentMonthExpenseTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '<', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth]);
+            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth])
+            ->filter(function ($transaction) {
+                // Exclude transactions with Transfer category
+                return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;
+            });
 
         $currentMonthIncomeTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '>', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth]);
+            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth])
+            ->filter(function ($transaction) {
+                // Exclude transactions with Transfer category
+                return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;
+            });
 
         // Calculate cumulative balance history
         $balanceHistory = [];

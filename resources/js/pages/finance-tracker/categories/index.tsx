@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/table';
 import { router } from '@inertiajs/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Category, BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -47,7 +46,6 @@ export default function Index({ categories }: Props) {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [formData, setFormData] = useState({
         name: '',
-        type: 'expense' as 'income' | 'expense',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -59,12 +57,12 @@ export default function Index({ categories }: Props) {
         }
         setIsOpen(false);
         setEditingCategory(null);
-        setFormData({ name: '', type: 'expense' });
+        setFormData({ name: '' });
     };
 
     const handleEdit = (category: Category) => {
         setEditingCategory(category);
-        setFormData({ name: category.name, type: category.type });
+        setFormData({ name: category.name });
         setIsOpen(true);
     };
 
@@ -100,22 +98,6 @@ export default function Index({ categories }: Props) {
                                         }
                                     />
                                 </div>
-                                <div>
-                                    <Select
-                                        value={formData.type}
-                                        onValueChange={(value) =>
-                                            setFormData({ ...formData, type: value as 'income' | 'expense' })
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="income">Income</SelectItem>
-                                            <SelectItem value="expense">Expense</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
                                 <Button type="submit">
                                     {editingCategory ? 'Update' : 'Create'}
                                 </Button>
@@ -128,7 +110,6 @@ export default function Index({ categories }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Type</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -136,23 +117,23 @@ export default function Index({ categories }: Props) {
                         {categories.data.map((category) => (
                             <TableRow key={category.id}>
                                 <TableCell>{category.name}</TableCell>
-                                <TableCell className="capitalize">{category.type}</TableCell>
                                 <TableCell>
-                                    <Button
+                                    { !category.is_system && <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleEdit(category)}
                                         className="m-2"
                                     >
                                         Edit
-                                    </Button>
-                                    <Button
+                                    </Button> }
+                                    { !category.is_system &&  <Button
                                         variant="destructive"
                                         size="sm"
                                         onClick={() => handleDelete(category.id)}
                                     >
                                         Delete
-                                    </Button>
+                                    </Button> }
+
                                 </TableCell>
                             </TableRow>
                         ))}

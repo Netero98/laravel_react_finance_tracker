@@ -12,6 +12,8 @@ use Illuminate\Support\Collection;
 
 class DatabaseSeeder extends Seeder
 {
+    private const LIGHT_MODE = true;
+
     /**
      * Seed the application's database.
      */
@@ -23,6 +25,17 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'created_at' => Carbon::now()->subMonths(2),
         ]);
+
+        // Create system Transfer category
+        $transferCategory = Category::create([
+            'name' => Category::SYSTEM_CATEGORY_TRANSFER,
+            'user_id' => 1,
+            'is_system' => true,
+        ]);
+
+        if (self::LIGHT_MODE) {
+            return;
+        }
 
         // Create categories
         $incomeCategories = new Collection([
@@ -144,6 +157,43 @@ class DatabaseSeeder extends Seeder
 
             // Move to next day
             $currentDate->addDay();
+        }
+
+        // Add some transfer transactions between wallets
+        $transferDates = [
+            Carbon::now()->subDays(20),
+            Carbon::now()->subDays(15),
+            Carbon::now()->subDays(10),
+            Carbon::now()->subDays(5),
+        ];
+
+        foreach ($transferDates as $date) {
+            // Create a pair of transactions for each transfer (one negative, one positive)
+            $amount = mt_rand(100, 1000);
+            $fromWalletId = $walletIds[array_rand($walletIds)];
+
+            // Make sure we pick a different wallet for the destination
+            do {
+                $toWalletId = $walletIds[array_rand($walletIds)];
+            } while ($toWalletId === $fromWalletId);
+
+            // Negative transaction (money leaving the source wallet)
+            Transaction::create([
+                'amount' => -$amount,
+                'description' => 'Transfer to ' . Wallet::find($toWalletId)->name,
+                'date' => $date->format('Y-m-d'),
+                'category_id' => $transferCategory->id,
+                'wallet_id' => $fromWalletId,
+            ]);
+
+            // Positive transaction (money entering the destination wallet)
+            Transaction::create([
+                'amount' => $amount,
+                'description' => 'Transfer from ' . Wallet::find($fromWalletId)->name,
+                'date' => $date->format('Y-m-d'),
+                'category_id' => $transferCategory->id,
+                'wallet_id' => $toWalletId,
+            ]);
         }
     }
 }
