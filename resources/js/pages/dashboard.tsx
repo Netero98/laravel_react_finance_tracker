@@ -466,10 +466,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
-                                    <div className="flex justify-center items-center h-[calc(100%-40px)]">
-                                        <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
-                                    </div>
                                 </motion.div>
+                                <div className="flex justify-center items-center h-[calc(100%-40px)]">
+                                    <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
+                                </div>
                             </div>
                         )}
 
@@ -480,10 +480,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
-                                    <div className="h-[calc(100%-40px)]">
-                                        <Pie data={pieChartData} options={pieChartOptions} />
-                                    </div>
                                 </motion.div>
+                                <div className="h-[calc(100%-40px)]">
+                                    <Pie data={pieChartData} options={pieChartOptions} />
+                                </div>
                             </div>
                         )}
 
@@ -501,16 +501,16 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                             </p>
                                         </div>
                                     )}
-                                    <div className="h-[calc(100%-70px)]">
-                                        {currentMonthExpenses.length > 0 ? (
-                                            <Pie data={expensesPieChartData} options={pieChartOptions} />
-                                        ) : (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="text-gray-500">No expenses this month</p>
-                                            </div>
-                                        )}
-                                    </div>
                                 </motion.div>
+                                <div className="h-[calc(100%-70px)]">
+                                    {currentMonthExpenses.length > 0 ? (
+                                        <Pie data={expensesPieChartData} options={pieChartOptions} />
+                                    ) : (
+                                        <div className="flex justify-center items-center h-full">
+                                            <p className="text-gray-500">No expenses this month</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
 
@@ -521,23 +521,23 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income (USD)</h3>
-                                    {currentMonthIncome.length > 0 && (
-                                        <div className="flex justify-center items-center mb-2">
-                                            <p className="text-xl font-bold text-green-600">
-                                                ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
-                                            </p>
+                                </motion.div>{currentMonthIncome.length > 0 && (
+                                    <div className="flex justify-center items-center mb-2">
+                                        <p className="text-xl font-bold text-green-600">
+                                            ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="h-[calc(100%-70px)]">
+                                    {currentMonthIncome.length > 0 ? (
+                                        <Pie data={incomePieChartData} options={pieChartOptions} />
+                                    ) : (
+                                        <div className="flex justify-center items-center h-full">
+                                            <p className="text-gray-500">No income this month</p>
                                         </div>
                                     )}
-                                    <div className="h-[calc(100%-70px)]">
-                                        {currentMonthIncome.length > 0 ? (
-                                            <Pie data={incomePieChartData} options={pieChartOptions} />
-                                        ) : (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="text-gray-500">No income this month</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </motion.div>
+                                </div>
+
                             </div>
                         )}
 
@@ -548,10 +548,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history (USD)</h3>
-                                    <div className="h-[calc(100%-40px)]">
-                                        <Line data={lineChartData} options={lineChartOptions} />
-                                    </div>
                                 </motion.div>
+                                <div className="h-[calc(100%-40px)]">
+                                    <Line data={lineChartData} options={lineChartOptions} />
+                                </div>
                             </div>
                         )}
                     </ResponsiveGridLayout>

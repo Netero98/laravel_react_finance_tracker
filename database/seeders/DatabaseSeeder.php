@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 class DatabaseSeeder extends Seeder
 {
-    private const LIGHT_MODE = true;
+    private const LIGHT_MODE = false;
 
     /**
      * Seed the application's database.
