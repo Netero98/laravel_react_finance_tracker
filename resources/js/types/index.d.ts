@@ -57,6 +57,11 @@ export interface Wallet {
     currency: string;
     created_at: string;
     updated_at: string;
+    walletCurrentBalanceUSD: number;
+}
+
+export interface DisplayableWallet extends Wallet {
+    walletCurrentBalanceInChosenCurrency: number;
 }
 
 export interface Transaction {

@@ -12,7 +12,7 @@ import {
     ArcElement,
 } from 'chart.js';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, DisplayableWallet } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
@@ -42,30 +42,44 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface Props {
-    balanceHistory: {
+    balanceHistoryUSD: {
         date: string;
         balance: number;
     }[];
-    currentBalance: number;
+    currentBalanceUSD: number;
     walletData: {
         name: string;
         walletCurrentBalanceUSD: number;
         currency: string;
     }[];
-    currentMonthExpenses: {
+    currentMonthExpensesUSD: {
         name: string;
         amount: number;
     }[];
-    currentMonthIncome: {
+    currentMonthIncomeUSD: {
         name: string;
         amount: number;
     }[];
+    exchangeRates: []
 }
 
-export default function Dashboard({ balanceHistory, currentBalance, walletData, currentMonthExpenses, currentMonthIncome }: Props) {
-    const x = useMotionValue(0);
-    const rotate = useTransform(x, [-100, 100], [-20, 20]);
+type CurrentCurrencyData = {
+    chosenCurrency: string,
+    currentBalanceInChosenCurrency: number,
+    balanceHistoryInChosenCurrency: [],
+    currentMonthExpensesInChosenCurrency: number,
+    currentMonthIncomeInChosenCurrency: number,
+    preparedWalletData: DisplayableWallet[],
+}
 
+export default function Dashboard({
+    balanceHistoryUSD,
+    currentBalanceUSD,
+    walletData,
+    currentMonthExpensesUSD,
+    currentMonthIncomeUSD,
+    exchangeRates
+}: Props) {
     // Define available charts
     const availableCharts = [
         { id: 'balance', title: 'Current Balance' },
@@ -113,6 +127,24 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
     const [isDraggable, setIsDraggable] = useState(false);
 
     const [currentAnimation, setCurrentAnimation] = useState(null);
+
+    const [currentCurrencyData, setCurrentCurrencyData] = useState<CurrentCurrencyData>({
+        chosenCurrency: 'USD',
+        currentBalanceInChosenCurrency: currentBalanceUSD,
+        balanceHistoryInChosenCurrency: balanceHistoryUSD,
+        currentMonthExpensesInChosenCurrency: currentMonthExpensesUSD,
+        currentMonthIncomeInChosenCurrency: currentMonthIncomeUSD,
+        preparedWalletData: walletData.map((wallet) => {
+            const walletCurrentBalanceInChosenCurrency = wallet.walletCurrentBalanceUSD;
+            return {
+                ...wallet,
+                walletCurrentBalanceInChosenCurrency,
+            }
+        })
+    });
+
+    const x = useMotionValue(0);
+    const rotate = useTransform(x, [-100, 100], [-20, 20]);
 
     useEffect(() => {
         if (isDraggable) {
@@ -231,11 +263,11 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
     };
     // Line chart data for balance history
     const lineChartData: any = {
-        labels: balanceHistory.map(item => item.date),
+        labels: currentCurrencyData.balanceHistoryInChosenCurrency.map(item => item.date),
         datasets: [
             {
-                label: 'USD',
-                data: balanceHistory.map(item => item.balance),
+                label: currentCurrencyData.chosenCurrency,
+                data: currentCurrencyData.balanceHistoryInChosenCurrency.map(item => item.balance),
                 fill: false,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
@@ -266,10 +298,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
 
     // Pie chart data for wallet proportions
     const pieChartData: any = {
-        labels: walletData.map(wallet => wallet.name),
+        labels: currentCurrencyData.preparedWalletData.map(wallet => wallet.name),
         datasets: [
             {
-                data: walletData.map(wallet => wallet.walletCurrentBalanceUSD),
+                data: currentCurrencyData.preparedWalletData.map(wallet => wallet.walletCurrentBalanceInChosenCurrency),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.6)',
                     'rgba(54, 162, 235, 0.6)',
@@ -293,10 +325,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
 
     // Pie chart data for current month expenses
     const expensesPieChartData: any = {
-        labels: currentMonthExpenses.map(expense => expense.name),
+        labels: currentCurrencyData.currentMonthExpensesInChosenCurrency.map(expense => expense.name),
         datasets: [
             {
-                data: currentMonthExpenses.map(expense => expense.amount),
+                data: currentCurrencyData.currentMonthExpensesInChosenCurrency.map(expense => expense.amount),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.6)',
                     'rgba(54, 162, 235, 0.6)',
@@ -320,10 +352,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
 
     // Pie chart data for current month income
     const incomePieChartData: any = {
-        labels: currentMonthIncome.map(income => income.name),
+        labels: currentCurrencyData.currentMonthIncomeInChosenCurrency.map(income => income.name),
         datasets: [
             {
-                data: currentMonthIncome.map(income => income.amount),
+                data: currentCurrencyData.currentMonthIncomeInChosenCurrency.map(income => income.amount),
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.6)',
                     'rgba(54, 162, 235, 0.6)',
@@ -363,7 +395,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                         const value = context.raw || 0;
                         const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                         const percentage = Math.round((value / total) * 100);
-                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                        return `${label}: ${value.toFixed(2)} (${percentage}%)`;
                     }
                 }
             }
@@ -377,6 +409,54 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                 <div className="mb-4 flex items-center justify-between gap-5">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
                     <div className="flex space-x-2">
+                        <select
+                            onChange={(e) => {
+                                const chosenCurrency = e.target.value;
+
+                                const rate = exchangeRates[chosenCurrency] || 1;
+                                const currentBalanceInChosenCurrency = currentBalanceUSD * rate;
+
+                                const balanceHistoryInChosenCurrency = balanceHistoryUSD.map(item => ({
+                                    date: item.date,
+                                    balance: item.balance * rate
+                                }));
+
+                                const currentMonthExpensesInChosenCurrency = currentMonthExpensesUSD.map(expense => ({
+                                    name: expense.name,
+                                    amount: expense.amount * rate
+                                }))
+
+                                const currentMonthIncomeInChosenCurrency = currentMonthIncomeUSD.map(income => ({
+                                    name: income.name,
+                                    amount: income.amount * rate
+                                }))
+
+                                const preparedWalletData = walletData.map(wallet => {
+                                    const walletCurrentBalanceInChosenCurrency = wallet.walletCurrentBalanceUSD * rate;
+                                    return {
+                                        ...wallet,
+                                        walletCurrentBalanceInChosenCurrency,
+                                    }
+                                })
+
+                                setCurrentCurrencyData({
+                                    chosenCurrency,
+                                    currentBalanceInChosenCurrency,
+                                    balanceHistoryInChosenCurrency,
+                                    currentMonthExpensesInChosenCurrency,
+                                    currentMonthIncomeInChosenCurrency,
+                                    preparedWalletData
+                                });
+                            }}
+                            className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                        >
+                            <option value="USD">USD</option>
+                            {Object.keys(exchangeRates).map(currency => (
+                                <option key={currency} value={currency}>
+                                    {currency}
+                                </option>
+                            ))}
+                        </select>
                         <button
                             onClick={() => setShowSettings(!showSettings)}
                             className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm flex items-center space-x-1 hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -465,10 +545,10 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance (USD)</h3>
+                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="flex justify-center items-center h-[calc(100%-40px)]">
-                                    <p className="text-3xl font-bold text-green-600">${currentBalance.toFixed(2)}</p>
+                                    <p className="text-3xl font-bold text-green-600">{currentCurrencyData.currentBalanceInChosenCurrency.toFixed(2)}</p>
                                 </div>
                             </div>
                         )}
@@ -479,7 +559,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution (USD)</h3>
+                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="h-[calc(100%-40px)]">
                                     <Pie data={pieChartData} options={pieChartOptions} />
@@ -493,17 +573,17 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses (USD)</h3>
-                                    {currentMonthExpenses.length > 0 && (
+                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses ({currentCurrencyData.chosenCurrency})</h3>
+                                    {currentCurrencyData.currentMonthExpensesInChosenCurrency.length > 0 && (
                                         <div className="flex justify-center items-center mb-2">
                                             <p className="text-xl font-bold text-red-600">
-                                                ${currentMonthExpenses.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
+                                                {currentCurrencyData.currentMonthExpensesInChosenCurrency.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
                                             </p>
                                         </div>
                                     )}
                                 </motion.div>
                                 <div className="h-[calc(100%-70px)]">
-                                    {currentMonthExpenses.length > 0 ? (
+                                    {currentCurrencyData.currentMonthExpensesInChosenCurrency.length > 0 ? (
                                         <Pie data={expensesPieChartData} options={pieChartOptions} />
                                     ) : (
                                         <div className="flex justify-center items-center h-full">
@@ -520,16 +600,16 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income (USD)</h3>
-                                </motion.div>{currentMonthIncome.length > 0 && (
+                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income ({currentCurrencyData.chosenCurrency})</h3>
+                                </motion.div>{currentCurrencyData.currentMonthIncomeInChosenCurrency.length > 0 && (
                                     <div className="flex justify-center items-center mb-2">
                                         <p className="text-xl font-bold text-green-600">
-                                            ${currentMonthIncome.reduce((total, income) => total + income.amount, 0).toFixed(2)}
+                                            {currentCurrencyData.currentMonthIncomeInChosenCurrency.reduce((total, income) => total + income.amount, 0).toFixed(2)}
                                         </p>
                                     </div>
                                 )}
                                 <div className="h-[calc(100%-70px)]">
-                                    {currentMonthIncome.length > 0 ? (
+                                    {currentCurrencyData.currentMonthIncomeInChosenCurrency.length > 0 ? (
                                         <Pie data={incomePieChartData} options={pieChartOptions} />
                                     ) : (
                                         <div className="flex justify-center items-center h-full">
@@ -547,7 +627,7 @@ export default function Dashboard({ balanceHistory, currentBalance, walletData, 
                                 className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history (USD)</h3>
+                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="h-[calc(100%-40px)]">
                                     <Line data={lineChartData} options={lineChartOptions} />

@@ -107,16 +107,16 @@ class DashboardController extends Controller
         }
 
         // Format for the frontend
-        $formattedHistory = [];
+        $formattedHistoryUSD = [];
         foreach ($dates as $date) {
-            $formattedHistory[] = [
+            $formattedHistoryUSD[] = [
                 'date' => $date,
                 'balance' => $balanceHistory[$date]
             ];
         }
 
         // Calculate current total balance in USD for the authenticated user
-        $currentBalance = $allWalletsWithTransactionsAndCategories->reduce(function ($total, Wallet $wallet) use ($exchangeRates) {
+        $currentBalanceUSD = $allWalletsWithTransactionsAndCategories->reduce(function ($total, Wallet $wallet) use ($exchangeRates) {
             $rate = $wallet->currency === ExchangeRateService::USD
                 ? 1
                 : $exchangeRates[$wallet->currency];
@@ -157,9 +157,9 @@ class DashboardController extends Controller
         }
 
         // Format for the frontend
-        $currentMonthExpensesData = [];
+        $currentMonthExpensesDataUSD = [];
         foreach ($expensesByCategory as $category => $amount) {
-            $currentMonthExpensesData[] = [
+            $currentMonthExpensesDataUSD[] = [
                 'name' => $category,
                 'amount' => $amount
             ];
@@ -186,20 +186,21 @@ class DashboardController extends Controller
         }
 
         // Format for the frontend
-        $currentMonthIncomeData = [];
+        $currentMonthIncomeDataUSD = [];
         foreach ($incomeByCategory as $category => $amount) {
-            $currentMonthIncomeData[] = [
+            $currentMonthIncomeDataUSD[] = [
                 'name' => $category,
                 'amount' => $amount
             ];
         }
 
         return Inertia::render('dashboard', [
-            'balanceHistory' => $formattedHistory,
-            'currentBalance' => $currentBalance,
+            'balanceHistoryUSD' => $formattedHistoryUSD,
+            'currentBalanceUSD' => $currentBalanceUSD,
             'walletData' => $walletData,
-            'currentMonthExpenses' => $currentMonthExpensesData,
-            'currentMonthIncome' => $currentMonthIncomeData,
+            'currentMonthExpensesUSD' => $currentMonthExpensesDataUSD,
+            'currentMonthIncomeUSD' => $currentMonthIncomeDataUSD,
+            'exchangeRates' => $exchangeRates,
         ]);
     }
 
