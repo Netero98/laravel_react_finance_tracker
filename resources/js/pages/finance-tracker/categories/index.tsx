@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PaginatedData<T> {
     data: T[];
@@ -116,7 +118,21 @@ export default function Index({ categories }: Props) {
                     <TableBody>
                         {categories.data.map((category) => (
                             <TableRow key={category.id}>
-                                <TableCell>{category.name}</TableCell>
+                                <TableCell>
+                                    {category.name}
+                                    {category.is_system && category.name === "Transfer" && (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="ml-2 h-4 w-4 inline-block cursor-help text-muted-foreground" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>This is system category made for making transfers between wallets</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )}
+                                </TableCell>
                                 <TableCell>
                                     { !category.is_system && <Button
                                         variant="outline"
