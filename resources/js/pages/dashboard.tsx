@@ -409,7 +409,7 @@ export default function Dashboard({
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between gap-5">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                         <select
                             onChange={(e) => {
                                 const chosenCurrency = e.target.value;
