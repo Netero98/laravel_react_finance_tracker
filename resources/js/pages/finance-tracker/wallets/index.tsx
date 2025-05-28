@@ -8,6 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatCurrency } from '@/utils/formatters';
 import { router } from '@inertiajs/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Wallet, BreadcrumbItem } from '@/types';
@@ -146,7 +147,7 @@ export default function Index({ wallets }: Props) {
                         {wallets.data.map((wallet) => (
                             <TableRow key={wallet.id}>
                                 <TableCell>{wallet.name}</TableCell>
-                                <TableCell>{Number(wallet.initial_balance).toFixed(2)}</TableCell>
+                                <TableCell>{formatCurrency(Number(wallet.initial_balance))}</TableCell>
                                 <TableCell>{wallet.currency}</TableCell>
                                 <TableCell>
                                     <Button

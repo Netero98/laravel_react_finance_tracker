@@ -19,6 +19,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Settings, X } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { formatCurrency } from '@/utils/formatters';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -395,7 +396,7 @@ export default function Dashboard({
                         const value = context.raw || 0;
                         const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                         const percentage = Math.round((value / total) * 100);
-                        return `${label}: ${value.toFixed(2)} (${percentage}%)`;
+                        return `${label}: ${formatCurrency(value)} (${percentage}%)`;
                     }
                 }
             }
@@ -548,7 +549,7 @@ export default function Dashboard({
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="flex justify-center items-center h-[calc(100%-40px)]">
-                                    <p className="text-3xl font-bold text-green-600">{currentCurrencyData.currentBalanceInChosenCurrency.toFixed(2)}</p>
+                                    <p className="text-3xl font-bold text-green-600">{formatCurrency(currentCurrencyData.currentBalanceInChosenCurrency)}</p>
                                 </div>
                             </div>
                         )}
@@ -577,7 +578,7 @@ export default function Dashboard({
                                     {currentCurrencyData.currentMonthExpensesInChosenCurrency.length > 0 && (
                                         <div className="flex justify-center items-center mb-2">
                                             <p className="text-xl font-bold text-red-600">
-                                                {currentCurrencyData.currentMonthExpensesInChosenCurrency.reduce((total, expense) => total + expense.amount, 0).toFixed(2)}
+                                                {formatCurrency(currentCurrencyData.currentMonthExpensesInChosenCurrency.reduce((total, expense) => total + expense.amount, 0))}
                                             </p>
                                         </div>
                                     )}
@@ -604,7 +605,7 @@ export default function Dashboard({
                                 </motion.div>{currentCurrencyData.currentMonthIncomeInChosenCurrency.length > 0 && (
                                     <div className="flex justify-center items-center mb-2">
                                         <p className="text-xl font-bold text-green-600">
-                                            {currentCurrencyData.currentMonthIncomeInChosenCurrency.reduce((total, income) => total + income.amount, 0).toFixed(2)}
+                                            {formatCurrency(currentCurrencyData.currentMonthIncomeInChosenCurrency.reduce((total, income) => total + income.amount, 0))}
                                         </p>
                                     </div>
                                 )}

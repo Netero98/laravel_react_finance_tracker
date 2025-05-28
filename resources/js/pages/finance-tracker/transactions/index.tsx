@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Transaction, Category, Wallet, BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/utils/formatters';
 import {
     Table,
     TableBody,
@@ -284,7 +285,7 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                     }
                                 >
                                     {transaction.amount > 0 ? '+' : '-'}
-                                    {Math.abs(transaction.amount).toFixed(2)}
+                                    {formatCurrency(Math.abs(transaction.amount))}
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">{transaction.wallet.name}</TableCell>
                                 <TableCell>
