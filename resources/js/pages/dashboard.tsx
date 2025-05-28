@@ -221,6 +221,51 @@ export default function Dashboard({
         }
     }, []);
 
+    function setCurrencyContext(chosenCurrency: string) {
+        const rate = exchangeRates[chosenCurrency] || 1;
+        const currentBalanceInChosenCurrency = currentBalanceUSD * rate;
+
+        const balanceHistoryInChosenCurrency = balanceHistoryUSD.map(item => ({
+            date: item.date,
+            balance: item.balance * rate
+        }));
+
+        const currentMonthExpensesInChosenCurrency = currentMonthExpensesUSD.map(expense => ({
+            name: expense.name,
+            amount: expense.amount * rate
+        }))
+
+        const currentMonthIncomeInChosenCurrency = currentMonthIncomeUSD.map(income => ({
+            name: income.name,
+            amount: income.amount * rate
+        }))
+
+        const preparedWalletData = walletData.map(wallet => {
+            const walletCurrentBalanceInChosenCurrency = wallet.walletCurrentBalanceUSD * rate;
+            return {
+                ...wallet,
+                walletCurrentBalanceInChosenCurrency,
+            }
+        })
+
+        setCurrentCurrencyData({
+            chosenCurrency,
+            currentBalanceInChosenCurrency,
+            balanceHistoryInChosenCurrency,
+            currentMonthExpensesInChosenCurrency,
+            currentMonthIncomeInChosenCurrency,
+            preparedWalletData,
+        });
+    }
+
+    useEffect(() => {
+        const savedChosenCurrency = localStorage.getItem('chosenCurrency');
+
+        if (savedChosenCurrency && savedChosenCurrency !== currentCurrencyData.chosenCurrency) {
+            setCurrencyContext(savedChosenCurrency)
+        }
+    }, [])
+
     // Save layouts to localStorage when they change
     const handleLayoutChange = (currentLayout: any, allLayouts: any) => {
         // Ensure minW and minH values are preserved
@@ -411,47 +456,14 @@ export default function Dashboard({
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
                     <div className="flex flex-wrap gap-2">
                         <select
+                            value={currentCurrencyData.chosenCurrency}
                             onChange={(e) => {
                                 const chosenCurrency = e.target.value;
-
-                                const rate = exchangeRates[chosenCurrency] || 1;
-                                const currentBalanceInChosenCurrency = currentBalanceUSD * rate;
-
-                                const balanceHistoryInChosenCurrency = balanceHistoryUSD.map(item => ({
-                                    date: item.date,
-                                    balance: item.balance * rate
-                                }));
-
-                                const currentMonthExpensesInChosenCurrency = currentMonthExpensesUSD.map(expense => ({
-                                    name: expense.name,
-                                    amount: expense.amount * rate
-                                }))
-
-                                const currentMonthIncomeInChosenCurrency = currentMonthIncomeUSD.map(income => ({
-                                    name: income.name,
-                                    amount: income.amount * rate
-                                }))
-
-                                const preparedWalletData = walletData.map(wallet => {
-                                    const walletCurrentBalanceInChosenCurrency = wallet.walletCurrentBalanceUSD * rate;
-                                    return {
-                                        ...wallet,
-                                        walletCurrentBalanceInChosenCurrency,
-                                    }
-                                })
-
-                                setCurrentCurrencyData({
-                                    chosenCurrency,
-                                    currentBalanceInChosenCurrency,
-                                    balanceHistoryInChosenCurrency,
-                                    currentMonthExpensesInChosenCurrency,
-                                    currentMonthIncomeInChosenCurrency,
-                                    preparedWalletData
-                                });
+                                setCurrencyContext(chosenCurrency);
+                                localStorage.setItem('chosenCurrency', chosenCurrency);
                             }}
                             className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                         >
-                            <option value="USD">USD</option>
                             {Object.keys(exchangeRates).map(currency => (
                                 <option key={currency} value={currency}>
                                     {currency}
