@@ -138,7 +138,7 @@ export default function Index({ wallets }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Initial balance</TableHead>
+                            <TableHead>Current balance</TableHead>
                             <TableHead>Currency</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
@@ -147,7 +147,7 @@ export default function Index({ wallets }: Props) {
                         {wallets.data.map((wallet) => (
                             <TableRow key={wallet.id}>
                                 <TableCell>{wallet.name}</TableCell>
-                                <TableCell>{formatCurrency(Number(wallet.initial_balance))}</TableCell>
+                                <TableCell>{formatCurrency(Number(wallet.current_balance))}</TableCell>
                                 <TableCell>{wallet.currency}</TableCell>
                                 <TableCell>
                                     <Button
@@ -171,7 +171,7 @@ export default function Index({ wallets }: Props) {
                     </TableBody>
                 </Table>
 
-                <Pagination links={wallets.links} />
+                <Pagination links={wallets.meta.links} />
             </div>
         </AppLayout>
     );

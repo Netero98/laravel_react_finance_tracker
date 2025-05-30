@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\WalletCollection;
 use App\Models\Wallet;
 use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class WalletController extends Controller
         $wallets = Wallet::query()->where('user_id', auth()->id())->paginate(8);
 
         return Inertia::render('finance-tracker/wallets/index', [
-            'wallets' => $wallets
+            'wallets' => (new WalletCollection($wallets))
         ]);
     }
 
