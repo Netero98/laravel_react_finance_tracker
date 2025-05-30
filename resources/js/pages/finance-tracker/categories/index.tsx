@@ -69,7 +69,7 @@ export default function Index({ categories }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this category?')) {
+        if (confirm('Are you sure you want to delete this category? All category transactions will be deleted as well. This action cannot be undone.')) {
             router.delete(`/categories/${id}`);
         }
     };

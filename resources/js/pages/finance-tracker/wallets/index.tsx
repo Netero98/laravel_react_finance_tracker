@@ -74,7 +74,7 @@ export default function Index({ wallets }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this wallet?')) {
+        if (confirm('Are you sure you want to delete this wallet? All wallet transactions will be deleted as well. This action cannot be undone.')) {
             router.delete(`/wallets/${id}`);
         }
     };
