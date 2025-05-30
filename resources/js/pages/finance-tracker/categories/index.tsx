@@ -122,9 +122,14 @@ export default function Index({ categories }: Props) {
                                     {category.name}
                                     {category.is_system && category.name === "Transfer" && (
                                         <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="ml-2 h-4 w-4 inline-block cursor-help text-muted-foreground" />
+                                            <Tooltip delayDuration={0}>
+                                                <TooltipTrigger asChild onClick={(e) => e.preventDefault()}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="ml-2 h-4 w-4 p-0 hover:bg-transparent"
+                                                    >
+                                                        <Info className="h-4 w-4 cursor-help text-muted-foreground" />
+                                                    </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>This is system category made for making transfers between wallets</p>
