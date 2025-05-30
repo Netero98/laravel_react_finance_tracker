@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Category;
 use App\Models\Wallet;
+use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -13,6 +14,19 @@ use Inertia\Response;
 
 class TransactionController extends Controller
 {
+    /**
+     * The exchange rate service instance.
+     */
+    private ExchangeRateService $exchangeRateService;
+
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(ExchangeRateService $exchangeRateService)
+    {
+        $this->exchangeRateService = $exchangeRateService;
+    }
+
     public function index(): Response
     {
         $wallets = Wallet::where('user_id', auth()->id())->get();
@@ -25,10 +39,13 @@ class TransactionController extends Controller
 
         $categories = Category::where('user_id', auth()->id())->get();
 
+        $exchangeRates = $this->exchangeRateService->getExchangeRates();
+
         return Inertia::render('finance-tracker/transactions/index', [
             'transactions' => $transactions,
             'categories' => $categories,
             'wallets' => $wallets,
+            'exchangeRates' => $exchangeRates,
         ]);
     }
 
@@ -55,7 +72,12 @@ class TransactionController extends Controller
                 'category_id' => ['required', Rule::in($allUserCategoryIds)],
                 'from_wallet_id' => ['required', Rule::in($allUserWalletIds)],
                 'to_wallet_id' => ['required', Rule::in($allUserWalletIds), 'different:from_wallet_id'],
+                'to_amount' => 'required|numeric',
             ]);
+
+            // Get the source and destination wallets
+            $fromWallet = Wallet::find($validated['from_wallet_id']);
+            $toWallet = Wallet::find($validated['to_wallet_id']);
 
             // Create outgoing transaction (negative amount)
             Transaction::query()->create([
@@ -66,9 +88,13 @@ class TransactionController extends Controller
                 'wallet_id' => $validated['from_wallet_id'],
             ]);
 
+            // Use the provided to_amount, which is either calculated automatically on the frontend
+            // or entered manually by the user
+            $toAmount = abs($validated['to_amount']);
+
             // Create incoming transaction (positive amount)
             Transaction::query()->create([
-                'amount' => abs($validated['amount']),
+                'amount' => $toAmount,
                 'description' => $validated['description'],
                 'date' => $validated['date'],
                 'category_id' => $validated['category_id'],

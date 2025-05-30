@@ -36,6 +36,7 @@ interface Props {
     transactions: PaginatedData<Transaction>;
     categories: Category[];
     wallets: Wallet[];
+    exchangeRates: Record<string, number>;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -45,7 +46,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ transactions, categories, wallets }: Props) {
+export default function Index({ transactions, categories, wallets, exchangeRates }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
     const [formData, setFormData] = useState({
@@ -56,14 +57,69 @@ export default function Index({ transactions, categories, wallets }: Props) {
         wallet_id: '',
         from_wallet_id: '',
         to_wallet_id: '',
+        use_auto_conversion: true,
+        to_amount: '',
     });
 
     const [isTransfer, setIsTransfer] = useState(false);
+    const [calculatedAmount, setCalculatedAmount] = useState<number | null>(null);
+
+    // Calculate converted amount when relevant fields change
+    React.useEffect(() => {
+        if (
+            isTransfer &&
+            formData.use_auto_conversion &&
+            formData.amount &&
+            formData.from_wallet_id &&
+            formData.to_wallet_id
+        ) {
+            const fromWallet = wallets.find(w => w.id.toString() === formData.from_wallet_id);
+            const toWallet = wallets.find(w => w.id.toString() === formData.to_wallet_id);
+
+            if (fromWallet && toWallet && fromWallet.currency !== toWallet.currency) {
+                const amount = parseFloat(formData.amount);
+                const fromRate = exchangeRates[fromWallet.currency] || 1;
+                const toRate = exchangeRates[toWallet.currency] || 1;
+
+                // Convert to USD then to target currency
+                const amountInUSD = amount / fromRate;
+                const convertedAmount = amountInUSD * toRate;
+
+                setCalculatedAmount(convertedAmount);
+
+                // Update to_amount field with the calculated amount
+                if (formData.use_auto_conversion) {
+                    setFormData(prev => ({
+                        ...prev,
+                        to_amount: convertedAmount.toFixed(2)
+                    }));
+                }
+            } else {
+                setCalculatedAmount(null);
+            }
+        } else {
+            setCalculatedAmount(null);
+        }
+    }, [
+        isTransfer,
+        formData.use_auto_conversion,
+        formData.amount,
+        formData.from_wallet_id,
+        formData.to_wallet_id,
+        wallets,
+        exchangeRates
+    ]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         const dataToSubmit = { ...formData };
+
+        // If it's a transfer between different currencies and auto conversion is enabled,
+        // make sure the to_amount is set to the calculated amount
+        if (isTransfer && formData.use_auto_conversion && calculatedAmount !== null) {
+            dataToSubmit.to_amount = calculatedAmount.toString();
+        }
 
         if (editingTransaction) {
             router.put(`/transactions/${editingTransaction.id}`, dataToSubmit);
@@ -82,6 +138,8 @@ export default function Index({ transactions, categories, wallets }: Props) {
             wallet_id: '',
             from_wallet_id: '',
             to_wallet_id: '',
+            use_auto_conversion: true,
+            to_amount: '',
         });
     };
 
@@ -248,6 +306,62 @@ export default function Index({ transactions, categories, wallets }: Props) {
                                                 </SelectContent>
                                             </Select>
                                         </div>
+
+                                        {formData.from_wallet_id && formData.to_wallet_id && (() => {
+                                            const fromWallet = wallets.find(w => w.id.toString() === formData.from_wallet_id);
+                                            const toWallet = wallets.find(w => w.id.toString() === formData.to_wallet_id);
+
+                                            if (fromWallet && toWallet && fromWallet.currency !== toWallet.currency) {
+                                                return (
+                                                    <>
+                                                        <div className="flex items-center space-x-2 mt-4">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="use_auto_conversion"
+                                                                checked={formData.use_auto_conversion}
+                                                                onChange={(e) =>
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        use_auto_conversion: e.target.checked
+                                                                    })
+                                                                }
+                                                                className="h-4 w-4 rounded border-gray-300"
+                                                            />
+                                                            <label htmlFor="use_auto_conversion" className="text-sm font-medium">
+                                                                Calculate at current exchange rate
+                                                            </label>
+                                                        </div>
+
+                                                        {formData.use_auto_conversion && calculatedAmount !== null ? (
+                                                            <div className="mt-2 text-sm">
+                                                                <span className="font-medium">Converted amount: </span>
+                                                                {formatCurrency(calculatedAmount)} {toWallet.currency}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-2">
+                                                                <label className="block text-sm font-medium mb-1">
+                                                                    Amount to receive in {toWallet.currency}
+                                                                </label>
+                                                                <Input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    placeholder={`Amount in ${toWallet.currency}`}
+                                                                    value={formData.to_amount}
+                                                                    onChange={(e) =>
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            to_amount: e.target.value
+                                                                        })
+                                                                    }
+                                                                    disabled={formData.use_auto_conversion}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
                                     </>
                                 )}
                                 <Button type="submit">
