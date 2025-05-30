@@ -148,7 +148,7 @@ export default function Index({ wallets }: Props) {
                             <TableRow key={wallet.id}>
                                 <TableCell>{wallet.name}</TableCell>
                                 <TableCell>{formatCurrency(Number(wallet.current_balance))}</TableCell>
-                                <TableCell>{wallet.currency}</TableCell>
+                                <TableCell className="p-0">{wallet.currency}</TableCell>
                                 <TableCell>
                                     <Button
                                         variant="outline"
