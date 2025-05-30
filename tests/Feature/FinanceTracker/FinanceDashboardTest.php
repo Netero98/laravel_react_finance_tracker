@@ -20,8 +20,8 @@ test('authenticated users can access the finance dashboard', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
-            ->has('balanceHistory')
-            ->has('currentBalance')
+            ->has('balanceHistoryUSD')
+            ->has('currentBalanceUSD')
         );
 });
 
@@ -75,8 +75,8 @@ test('finance dashboard shows correct balance history', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
-            ->has('balanceHistory', 3) // Should have 3 data points
-            ->has('currentBalance')
+            ->has('balanceHistoryUSD', 4) // Should have 4 data points because of the initial balance
+            ->has('currentBalanceUSD')
         );
 });
 
@@ -103,7 +103,7 @@ test('finance dashboard shows correct current balance', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
-            ->where('currentBalance', function ($balance) {
+            ->where('currentBalanceUSD', function ($balance) {
                 // The balance should be approximately 1000 + (500 / 0.92) = ~1543.48
                 // But we'll allow some flexibility due to exchange rate variations
                 return $balance >= 1500 && $balance <= 1600;
@@ -142,7 +142,15 @@ test('finance dashboard only shows data for the authenticated user', function ()
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
-            ->where('currentBalance', 0) // User1 has no wallets, so balance should be 0
-            ->where('balanceHistory', []) // User1 has no transactions, so history should be empty
+            ->where('currentBalanceUSD', 0) // User1 has no wallets, so balance should be 0
+            ->where(
+                'balanceHistoryUSD',
+                [
+                    [
+                    'balance' => null,
+                    'date' => '2025-05-30',
+                    ],
+                ]
+            )
         );
 });
