@@ -20,6 +20,7 @@ import 'react-resizable/css/styles.css';
 import { Settings, X } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { formatCurrency } from '@/utils/formatters';
+import { Combobox } from '@/components/ui/combobox';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -455,21 +456,20 @@ export default function Dashboard({
                 <div className="mb-4 flex items-center justify-between gap-5">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
                     <div className="flex flex-wrap gap-2">
-                        <select
+                        <Combobox
+                            options={Object.keys(exchangeRates).map(currency => ({
+                                value: currency,
+                                label: currency
+                            }))}
                             value={currentCurrencyData.chosenCurrency}
-                            onChange={(e) => {
-                                const chosenCurrency = e.target.value;
-                                setCurrencyContext(chosenCurrency);
-                                localStorage.setItem('chosenCurrency', chosenCurrency);
+                            onChange={(value) => {
+                                setCurrencyContext(value);
+                                localStorage.setItem('chosenCurrency', value);
                             }}
-                            className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                        >
-                            {Object.keys(exchangeRates).map(currency => (
-                                <option key={currency} value={currency}>
-                                    {currency}
-                                </option>
-                            ))}
-                        </select>
+                            placeholder="Select..."
+                            searchPlaceholder="Search..."
+                            className="w-40 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                        />
                         <button
                             onClick={() => setShowSettings(!showSettings)}
                             className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm flex items-center space-x-1 hover:bg-gray-300 dark:hover:bg-gray-600"
