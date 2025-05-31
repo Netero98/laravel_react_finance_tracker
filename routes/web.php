@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FinanceTracker\AIAssistantController;
 use App\Http\Controllers\FinanceTracker\CategoryController;
 use App\Http\Controllers\FinanceTracker\DashboardController;
 use App\Http\Controllers\FinanceTracker\TransactionController;
@@ -33,4 +34,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+    // AI Assistant
+    Route::get('/ai-assistant', [AIAssistantController::class, 'index'])->name('ai-assistant.index');
+    Route::post('/ai-assistant/chat', [AIAssistantController::class, 'chat'])->name('ai-assistant.chat');
 });
