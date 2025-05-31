@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
 import { Bot, Send, User } from 'lucide-react';
-import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,71 +19,35 @@ interface Message {
     timestamp: Date;
 }
 
-export default function AIAssistant() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 1,
-            text: "Hello! I'm your AI financial assistant. I can help you with understanding your finances, creating budgets, saving strategies, and investment advice. What would you like to know?",
-            isUser: false,
-            timestamp: new Date(),
-        },
-    ]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+interface Props {
+    chatHistory: Message[];
+}
 
-    // Scroll to bottom of messages when messages change
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+export default function AIAssistant({chatHistory}: Props) {
+    const [inputMessage, setInputMessage] = useState('');
 
     const handleSendMessage = async () => {
         if (inputMessage.trim() === '') return;
 
         const userMessage: Message = {
-            id: messages.length + 1,
+            id: chatHistory.length + 1,
             text: inputMessage,
             isUser: true,
             timestamp: new Date(),
         };
 
-        setMessages((prevMessages) => [...prevMessages, userMessage]);
-        setInputMessage('');
-        setIsLoading(true);
+        let dataToSubmit = chatHistory
+        dataToSubmit.push(userMessage)
 
-        try {
-            const response = await axios.post(route('ai-assistant.chat'), {
-                message: userMessage.text,
-            });
-
-            const aiMessage: Message = {
-                id: messages.length + 2,
-                text: response.data.response,
-                isUser: false,
-                timestamp: new Date(),
-            };
-
-            setMessages((prevMessages) => [...prevMessages, aiMessage]);
-        } catch (error) {
-            console.error('Error sending message:', error);
-
-            const errorMessage: Message = {
-                id: messages.length + 2,
-                text: 'Sorry, I encountered an error processing your request. Please try again.',
-                isUser: false,
-                timestamp: new Date(),
-            };
-
-            setMessages((prevMessages) => [...prevMessages, errorMessage]);
-        } finally {
-            setIsLoading(false);
-        }
+        await router.post(route('ai-assistant.chat'), {
+            chatHistory: dataToSubmit,
+        });
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleSendMessage();
+            await handleSendMessage();
         }
     };
 
@@ -102,7 +66,7 @@ export default function AIAssistant() {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {messages.map((message) => (
+                            {chatHistory.map((message) => (
                                 <div
                                     key={message.id}
                                     className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}

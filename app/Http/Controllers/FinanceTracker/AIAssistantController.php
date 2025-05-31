@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
+use App\Models\AiChatHistory;
 use App\Services\ExchangeRateService;
+use App\Services\OpenAIService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,11 +18,17 @@ class AIAssistantController extends Controller
     private ExchangeRateService $exchangeRateService;
 
     /**
+     * The OpenAI service instance.
+     */
+    private OpenAIService $openAIService;
+
+    /**
      * Create a new controller instance.
      */
-    public function __construct(ExchangeRateService $exchangeRateService)
+    public function __construct(ExchangeRateService $exchangeRateService, OpenAIService $openAIService)
     {
         $this->exchangeRateService = $exchangeRateService;
+        $this->openAIService = $openAIService;
     }
 
     /**
@@ -28,7 +36,11 @@ class AIAssistantController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('finance-tracker/ai-assistant/index');
+        $userChatHistory = AiChatHistory::query()->where('user_id', auth()->id())->get();
+
+        return Inertia::render('finance-tracker/ai-assistant/index', [
+            'chatHistory' => $userChatHistory->data
+        ]);
     }
 
     /**
@@ -37,46 +49,15 @@ class AIAssistantController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
-            'message' => 'required|string',
+            'chatHistory' => 'required|string',
         ]);
 
-        $userMessage = $request->input('message');
+        $chatHistory = $request->input('chatHistory');
 
-        // In a real implementation, this would call an AI service
-        // For now, we'll return some simple responses based on keywords
-        $response = $this->generateResponse($userMessage);
+        // Call the OpenAI service to generate a response
+        $response = $this->openAIService->getChatHistoryWithAiAnswer($chatHistory);
 
-        return response()->json([
-            'response' => $response,
-        ]);
-    }
-
-    /**
-     * Generate a simple response based on the user's message.
-     * In a real implementation, this would be replaced with an actual AI service.
-     */
-    private function generateResponse(string $message): string
-    {
-        $message = strtolower($message);
-
-        if (str_contains($message, 'saving') || str_contains($message, 'save')) {
-            return "To improve your savings, consider the 50/30/20 rule: 50% of income for needs, 30% for wants, and 20% for savings. Would you like more specific advice based on your spending patterns?";
-        }
-
-        if (str_contains($message, 'invest')) {
-            return "Based on your current financial situation, you might consider investing in low-risk options like index funds or ETFs. Would you like me to explain more about these investment options?";
-        }
-
-        if (str_contains($message, 'expense') || str_contains($message, 'spending')) {
-            return "I can analyze your spending patterns to identify areas where you might be able to reduce expenses. Would you like me to do that?";
-        }
-
-        if (str_contains($message, 'budget')) {
-            return "Creating a budget is a great way to manage your finances. Based on your income and spending patterns, I can help you create a personalized budget. Would you like me to do that?";
-        }
-
-        // Default response
-        return "I'm your AI financial assistant. I can help you with understanding your finances, creating budgets, saving strategies, and investment advice. What would you like to know?";
+        return back()->with('chatHistory', $response);
     }
 
     /**
