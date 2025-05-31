@@ -58,6 +58,8 @@ export interface Wallet {
     created_at: string;
     updated_at: string;
     walletCurrentBalanceUSD: number;
+    walletCurrentBalance: number; //todo delete duplicated property
+    current_balance: number;
 }
 
 export interface DisplayableWallet extends Wallet {

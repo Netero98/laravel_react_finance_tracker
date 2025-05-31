@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\WalletCollection;
 use App\Models\Transaction;
 use App\Models\Category;
 use App\Models\Wallet;
@@ -44,7 +45,7 @@ class TransactionController extends Controller
         return Inertia::render('finance-tracker/transactions/index', [
             'transactions' => $transactions,
             'categories' => $categories,
-            'wallets' => $wallets,
+            'wallets' => new WalletCollection($wallets),
             'exchangeRates' => $exchangeRates,
         ]);
     }

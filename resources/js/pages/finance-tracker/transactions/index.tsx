@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
-import { Transaction, Category, Wallet, BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/react';
+import { BreadcrumbItem, Category, Transaction, Wallet } from '@/types';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/formatters';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { router } from '@inertiajs/react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -59,6 +51,8 @@ export default function Index({ transactions, categories, wallets, exchangeRates
         to_wallet_id: '',
         use_auto_conversion: true,
         to_amount: '',
+        use_balance_input: true,
+        new_balance: '',
     });
 
     const [isTransfer, setIsTransfer] = useState(false);
@@ -73,8 +67,8 @@ export default function Index({ transactions, categories, wallets, exchangeRates
             formData.from_wallet_id &&
             formData.to_wallet_id
         ) {
-            const fromWallet = wallets.find(w => w.id.toString() === formData.from_wallet_id);
-            const toWallet = wallets.find(w => w.id.toString() === formData.to_wallet_id);
+            const fromWallet = wallets.data.find(w => w.id.toString() === formData.from_wallet_id);
+            const toWallet = wallets.data.find(w => w.id.toString() === formData.to_wallet_id);
 
             if (fromWallet && toWallet && fromWallet.currency !== toWallet.currency) {
                 const amount = parseFloat(formData.amount);
@@ -113,7 +107,32 @@ export default function Index({ transactions, categories, wallets, exchangeRates
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const dataToSubmit = { ...formData };
+        let amount = formData.amount;
+
+        if (formData.use_balance_input) {
+            if (!formData.new_balance || !formData.wallet_id) {
+                return;
+            }
+
+            const newBalance = parseFloat(formData.new_balance);
+            const wallet = wallets.data.find(w => w.id.toString() === formData.wallet_id);
+
+            if (!wallet) {
+                console.log('Wallet not found');
+                return;
+            }
+
+            const walletBalance = parseFloat(wallet.current_balance);
+
+            if (isNaN(newBalance) || isNaN(walletBalance)) {
+                console.log('Invalid number:', { newBalance, walletBalance });
+                return;
+            }
+
+            amount = newBalance - walletBalance;
+        }
+
+        const dataToSubmit = { ...formData, amount: amount };
 
         // If it's a transfer between different currencies and auto conversion is enabled,
         // make sure the to_amount is set to the calculated amount
@@ -140,6 +159,8 @@ export default function Index({ transactions, categories, wallets, exchangeRates
             to_wallet_id: '',
             use_auto_conversion: true,
             to_amount: '',
+            use_balance_input: false,
+            new_balance: '',
         });
     };
 
@@ -152,6 +173,12 @@ export default function Index({ transactions, categories, wallets, exchangeRates
             type: transaction.type,
             category_id: transaction.category_id.toString(),
             wallet_id: transaction.wallet_id.toString(),
+            from_wallet_id: '',
+            to_wallet_id: '',
+            use_auto_conversion: true,
+            to_amount: '',
+            use_balance_input: false,
+            new_balance: '',
         });
         setIsOpen(true);
     };
@@ -179,16 +206,48 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                 </DialogTitle>
                             </DialogHeader>
                             <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="Amount"
-                                        value={formData.amount}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, amount: e.target.value })
-                                        }
-                                    />
+                                <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            id="use_balance_input"
+                                            checked={formData.use_balance_input}
+                                            onChange={(e) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    use_balance_input: e.target.checked,
+                                                })
+                                            }}
+                                            className="h-4 w-4 rounded border-gray-300"
+                                        />
+                                        <label htmlFor="use_balance_input" className="text-sm font-medium">
+                                            Enter new balance instead of amount
+                                        </label>
+                                    </div>
+
+                                    {formData.use_balance_input
+                                    ? (
+                                        <Input
+                                            type="number"
+                                            step="100"
+                                            placeholder="New Balance"
+                                            value={formData.new_balance}
+                                            onChange={(e) => {
+                                                const newBalance = e.target.value;
+                                                setFormData({ ...formData, new_balance: newBalance });
+                                            }}
+                                        />
+                                    ) : (
+                                        <Input
+                                            type="number"
+                                            step="100"
+                                            placeholder="Amount"
+                                            value={formData.amount}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, amount: e.target.value })
+                                            }
+                                        />
+                                    )}
                                 </div>
                                 <div>
                                     <Input
@@ -239,15 +298,15 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                     <div>
                                         <Select
                                             value={formData.wallet_id}
-                                            onValueChange={(value) =>
-                                                setFormData({ ...formData, wallet_id: value })
-                                            }
+                                            onValueChange={(value) => {
+                                                setFormData({ ...formData, wallet_id: value });
+                                            }}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select wallet" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {wallets.map((wallet) => (
+                                                {wallets.data.map((wallet) => (
                                                     <SelectItem
                                                         key={wallet.id}
                                                         value={wallet.id.toString()}
@@ -272,7 +331,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                     <SelectValue placeholder="Select source wallet" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {wallets.map((wallet) => (
+                                                    {wallets.data.map((wallet) => (
                                                         <SelectItem
                                                             key={wallet.id}
                                                             value={wallet.id.toString()}
@@ -295,7 +354,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                     <SelectValue placeholder="Select destination wallet" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {wallets.map((wallet) => (
+                                                    {wallets.data.map((wallet) => (
                                                         <SelectItem
                                                             key={wallet.id}
                                                             value={wallet.id.toString()}
@@ -308,8 +367,8 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                         </div>
 
                                         {formData.from_wallet_id && formData.to_wallet_id && (() => {
-                                            const fromWallet = wallets.find(w => w.id.toString() === formData.from_wallet_id);
-                                            const toWallet = wallets.find(w => w.id.toString() === formData.to_wallet_id);
+                                            const fromWallet = wallets.data.find(w => w.id.toString() === formData.from_wallet_id);
+                                            const toWallet = wallets.data.find(w => w.id.toString() === formData.to_wallet_id);
 
                                             if (fromWallet && toWallet && fromWallet.currency !== toWallet.currency) {
                                                 return (
