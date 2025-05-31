@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\FinanceTracker;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaction;
-use App\Models\Wallet;
 use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class AIAssistantController extends Controller
 {
@@ -27,34 +26,9 @@ class AIAssistantController extends Controller
     /**
      * Display the AI assistant page.
      */
-    public function index()
+    public function index(): Response
     {
-        $exchangeRates = $this->getExchangeRates();
-
-        // Get user's wallets with transactions
-        $wallets = Wallet::with(['transactions'])
-            ->where('user_id', auth()->id())
-            ->get();
-
-        // Calculate total balance
-        $totalBalance = $wallets->reduce(function ($total, Wallet $wallet) use ($exchangeRates) {
-            $rate = $exchangeRates[$wallet->currency];
-            return $total + $wallet->getInitialBalancePlusTransactionsDelta() / $rate;
-        }, 0);
-
-        // Get recent transactions
-        $recentTransactions = Transaction::with(['category', 'wallet'])
-            ->whereIn('wallet_id', $wallets->pluck('id'))
-            ->orderBy('date', 'desc')
-            ->limit(5)
-            ->get();
-
-        return Inertia::render('finance-tracker/ai-assistant/index', [
-            'totalBalance' => $totalBalance,
-            'wallets' => $wallets,
-            'recentTransactions' => $recentTransactions,
-            'exchangeRates' => $exchangeRates,
-        ]);
+        return Inertia::render('finance-tracker/ai-assistant/index');
     }
 
     /**
