@@ -4,9 +4,9 @@
 README.md: https://github.com/dockersamples/laravel-docker-examples
 
 ### How to set up the project locally?
-    ```
-    make init
-    ```
+```
+make init
+```
 
 ### Tech debt:
 - Тесты нормально выполняются на тестовых временных бд только глобальной командой make test. Если запустить конкретный, то будет использована основная бд. Надо сделать так, чтобы тоже использовалась тестовая бд.
