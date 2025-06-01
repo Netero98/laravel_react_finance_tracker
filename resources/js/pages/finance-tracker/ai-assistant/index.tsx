@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
@@ -47,7 +47,7 @@ export default function AIAssistant({chatHistory}: Props) {
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            await handleSendMessage();
+            handleSendMessage();
         }
     };
 
@@ -84,26 +84,11 @@ export default function AIAssistant({chatHistory}: Props) {
                                             <p className="whitespace-pre-wrap">{message.text}</p>
                                         </div>
                                         <p className="text-xs opacity-70 text-right">
-                                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {message.timestamp}
                                         </p>
                                     </div>
                                 </div>
                             ))}
-                            {isLoading && (
-                                <div className="flex justify-start">
-                                    <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Bot className="h-5 w-5" />
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Input */}
@@ -119,7 +104,7 @@ export default function AIAssistant({chatHistory}: Props) {
                                 />
                                 <button
                                     onClick={handleSendMessage}
-                                    disabled={isLoading || inputMessage.trim() === ''}
+                                    // disabled={isLoading || inputMessage.trim() === ''}
                                     className="ml-2 p-2 bg-blue-500 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Send className="h-5 w-5" />
