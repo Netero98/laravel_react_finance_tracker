@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
 import { Bot, Send, User } from 'lucide-react';
-import axios from 'axios';
+import { router } from '@inertiajs/react';
+import { v1 as uuidv1 } from 'uuid';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,71 +14,41 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface Message {
-    id: number;
+    id: string;
     text: string;
     isUser: boolean;
     timestamp: Date;
 }
 
-export default function AIAssistant() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 1,
-            text: "Hello! I'm your AI financial assistant. I can help you with understanding your finances, creating budgets, saving strategies, and investment advice. What would you like to know?",
-            isUser: false,
-            timestamp: new Date(),
-        },
-    ]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+interface Props {
+    chatHistory: Message[];
+}
 
-    // Scroll to bottom of messages when messages change
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+export default function AIAssistant({chatHistory}: Props) {
+    const [inputMessage, setInputMessage] = useState('');
 
     const handleSendMessage = async () => {
         if (inputMessage.trim() === '') return;
 
         const userMessage: Message = {
-            id: messages.length + 1,
+            id: uuidv1(),
             text: inputMessage,
             isUser: true,
             timestamp: new Date(),
         };
 
-        setMessages((prevMessages) => [...prevMessages, userMessage]);
-        setInputMessage('');
-        setIsLoading(true);
+        let dataToSubmit = chatHistory
+        dataToSubmit.push(userMessage)
 
-        try {
-            const response = await axios.post(route('ai-assistant.chat'), {
-                message: userMessage.text,
+        await router.post(
+            route('ai-assistant.chat'),
+            {
+                chatHistory: dataToSubmit, 
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => setInputMessage(''),
             });
-
-            const aiMessage: Message = {
-                id: messages.length + 2,
-                text: response.data.response,
-                isUser: false,
-                timestamp: new Date(),
-            };
-
-            setMessages((prevMessages) => [...prevMessages, aiMessage]);
-        } catch (error) {
-            console.error('Error sending message:', error);
-
-            const errorMessage: Message = {
-                id: messages.length + 2,
-                text: 'Sorry, I encountered an error processing your request. Please try again.',
-                isUser: false,
-                timestamp: new Date(),
-            };
-
-            setMessages((prevMessages) => [...prevMessages, errorMessage]);
-        } finally {
-            setIsLoading(false);
-        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -102,7 +73,7 @@ export default function AIAssistant() {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {messages.map((message) => (
+                            {chatHistory.map((message) => (
                                 <div
                                     key={message.id}
                                     className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
@@ -120,26 +91,11 @@ export default function AIAssistant() {
                                             <p className="whitespace-pre-wrap">{message.text}</p>
                                         </div>
                                         <p className="text-xs opacity-70 text-right">
-                                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {message.timestamp}
                                         </p>
                                     </div>
                                 </div>
                             ))}
-                            {isLoading && (
-                                <div className="flex justify-start">
-                                    <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Bot className="h-5 w-5" />
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Input */}
@@ -155,7 +111,6 @@ export default function AIAssistant() {
                                 />
                                 <button
                                     onClick={handleSendMessage}
-                                    disabled={isLoading || inputMessage.trim() === ''}
                                     className="ml-2 p-2 bg-blue-500 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Send className="h-5 w-5" />

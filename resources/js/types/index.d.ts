@@ -58,7 +58,7 @@ export interface Wallet {
     created_at: string;
     updated_at: string;
     walletCurrentBalanceUSD: number;
-    walletCurrentBalance: number; //todo delete duplicated property
+    walletCurrentBalance: number; //todo delete duplicated property: walletCurrentBalance and current_balance are the same
     current_balance: number;
 }
 

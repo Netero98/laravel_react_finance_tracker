@@ -13,11 +13,6 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-    // {
-    //     title: 'To do',
-    //     href: '/todos',
-    //     icon: ListTodo,
-    // },
     {
         title: 'Transactions',
         href: '/transactions',
