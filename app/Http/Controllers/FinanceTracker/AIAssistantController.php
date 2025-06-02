@@ -70,7 +70,7 @@ class AIAssistantController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
-            'chatHistory' => 'required|string',
+            'chatHistory' => 'required',
         ]);
 
         $chatHistoryPlain = $request->input('chatHistory');
@@ -81,13 +81,13 @@ class AIAssistantController extends Controller
                 id: $chatHistoryArr['id'],
                 text: $chatHistoryArr['text'],
                 isUser: $chatHistoryArr['isUser'],
-                timestamp: $chatHistoryArr['timestamp']
+                timestamp: new Carbon($chatHistoryArr['timestamp'])
             );
         }
 
-        $aiChatModel = AiChatHistory::query()->first([
+        $aiChatModel = AiChatHistory::query()->where([
             AiChatHistory::PROP_USER_ID => auth()->id(),
-        ]);
+        ])->first();
 
         $aiChatModel->data = $chatHistory->toArray();
         $aiChatModel->save();
@@ -97,7 +97,7 @@ class AIAssistantController extends Controller
         $aiChatModel->data = $chatHistoryWithNewLastMessageFromAI->toArray();
         $aiChatModel->save();
 
-        return to_route('ai-assistant.index');
+        return back();
     }
 
     /**

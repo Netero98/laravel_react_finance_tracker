@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
 import { Bot, Send, User } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { v1 as uuidv1 } from 'uuid';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,7 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface Message {
-    id: number;
+    id: string;
     text: string;
     isUser: boolean;
     timestamp: Date;
@@ -30,7 +31,7 @@ export default function AIAssistant({chatHistory}: Props) {
         if (inputMessage.trim() === '') return;
 
         const userMessage: Message = {
-            id: chatHistory.length + 1,
+            id: uuidv1(),
             text: inputMessage,
             isUser: true,
             timestamp: new Date(),
@@ -39,9 +40,15 @@ export default function AIAssistant({chatHistory}: Props) {
         let dataToSubmit = chatHistory
         dataToSubmit.push(userMessage)
 
-        await router.post(route('ai-assistant.chat'), {
-            chatHistory: dataToSubmit,
-        });
+        await router.post(
+            route('ai-assistant.chat'),
+            {
+                chatHistory: dataToSubmit, 
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => setInputMessage(''),
+            });
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -104,7 +111,6 @@ export default function AIAssistant({chatHistory}: Props) {
                                 />
                                 <button
                                     onClick={handleSendMessage}
-                                    // disabled={isLoading || inputMessage.trim() === ''}
                                     className="ml-2 p-2 bg-blue-500 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Send className="h-5 w-5" />

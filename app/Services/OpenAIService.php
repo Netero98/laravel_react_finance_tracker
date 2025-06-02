@@ -35,6 +35,7 @@ class OpenAIService
             'currentBalance' => $userFinanceDataContext->currentBalanceUSD,
             'currentMonthExpensesUSD' => $userFinanceDataContext->currentMonthExpensesUSD,
             'currentMonthIncomeUSD' => $userFinanceDataContext->currentMonthIncomeUSD,
+            'walletData' => $userFinanceDataContext->walletData,
         ];
 
         try {

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('ai_chat_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
             $table->json('data')->nullable();
             $table->timestamps();
         });
