@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
-import { Bot, Send, User } from 'lucide-react';
+import { Bot, Send, User, Trash2 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { v1 as uuidv1 } from 'uuid';
 
@@ -43,12 +43,18 @@ export default function AIAssistant({chatHistory}: Props) {
         router.post(
             route('ai-assistant.chat'),
             {
-                chatHistory: dataToSubmit, 
+                chatHistory: dataToSubmit,
             },
             {
                 preserveScroll: true,
                 onSuccess: () => setInputMessage(''),
             });
+    };
+
+    const handleDeleteChatHistory = () => {
+        if (confirm('Are you sure you want to delete your chat history?')) {
+            router.delete(route('ai-assistant.delete-chat-history'));
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -66,9 +72,18 @@ export default function AIAssistant({chatHistory}: Props) {
                     {/* Chat Interface */}
                     <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl shadow flex flex-col h-[calc(100vh-12rem)]">
                         {/* Chat Header */}
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-                            <Bot className="h-6 w-6 text-blue-500 mr-2" />
-                            <h2 className="text-lg font-semibold">AI Financial Assistant</h2>
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <div className="flex items-center">
+                                <Bot className="h-6 w-6 text-blue-500 mr-2" />
+                                <h2 className="text-lg font-semibold">AI Financial Assistant</h2>
+                            </div>
+                            <button
+                                onClick={handleDeleteChatHistory}
+                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                                title="Delete chat history"
+                            >
+                                <Trash2 className="h-5 w-5" />
+                            </button>
                         </div>
 
                         {/* Messages */}

@@ -110,4 +110,30 @@ class AIAssistantController extends Controller
     {
         return $this->exchangeRateService->getExchangeRates();
     }
+
+    /**
+     * Delete the user's chat history.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteChatHistory()
+    {
+        $aiChatModel = AiChatHistory::query()->where([
+            AiChatHistory::PROP_USER_ID => auth()->id(),
+        ])->first();
+
+        if ($aiChatModel) {
+            $initialSystemMessage = new UserChatHistoryDTO(
+                id: Uuid::uuid1()->toString(),
+                content: 'Hi! I am your personal AI assistant. I can help you with your finances. How can I help you today?',
+                role: DeepseekService::ROLE_SYSTEM,
+                timestamp: new Carbon()
+            );
+
+            $aiChatModel->data = [$initialSystemMessage->toArray()];
+            $aiChatModel->save();
+        }
+
+        return redirect()->route('ai-assistant.index');
+    }
 }

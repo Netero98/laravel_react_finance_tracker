@@ -38,4 +38,5 @@ Route::middleware(['auth'])->group(function () {
     // AI Assistant
     Route::get('/ai-assistant', [AIAssistantController::class, 'index'])->name('ai-assistant.index');
     Route::post('/ai-assistant/chat', [AIAssistantController::class, 'chat'])->name('ai-assistant.chat');
+    Route::delete('/ai-assistant/chat-history', [AIAssistantController::class, 'deleteChatHistory'])->name('ai-assistant.delete-chat-history');
 });
