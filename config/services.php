@@ -39,4 +39,11 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
         'model' => env('OPENAI_MODEL', 'gpt-3.5-turbo'),
     ],
+    'deepseek' => [
+        'api_key' => env('DEEPSEEK_API_KEY'),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-chat'),
+    ],
+    'ai' => [
+        'provider' => env('AI_PROVIDER', 'openai'), // Options: 'openai', 'deepseek'
+    ],
 ];

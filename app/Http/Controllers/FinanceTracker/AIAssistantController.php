@@ -4,9 +4,9 @@ namespace App\Http\Controllers\FinanceTracker;
 
 use App\DTO\UserChatHistoryDTO;
 use App\Http\Controllers\Controller;
+use App\Interfaces\AiChatInterface;
 use App\Models\AiChatHistory;
 use App\Services\ExchangeRateService;
-use App\Services\OpenAIService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -22,17 +22,17 @@ class AIAssistantController extends Controller
     private ExchangeRateService $exchangeRateService;
 
     /**
-     * The OpenAI service instance.
+     * The AI chat service instance.
      */
-    private OpenAIService $openAIService;
+    private AiChatInterface $aiChatService;
 
     /**
      * Create a new controller instance.
      */
-    public function __construct(ExchangeRateService $exchangeRateService, OpenAIService $openAIService)
+    public function __construct(ExchangeRateService $exchangeRateService, AiChatInterface $aiChatService)
     {
         $this->exchangeRateService = $exchangeRateService;
-        $this->openAIService = $openAIService;
+        $this->aiChatService = $aiChatService;
     }
 
     /**
@@ -92,7 +92,7 @@ class AIAssistantController extends Controller
         $aiChatModel->data = $chatHistory->toArray();
         $aiChatModel->save();
 
-        $chatHistoryWithNewLastMessageFromAI = $this->openAIService->getChatHistoryWithAiAnswer($chatHistory);
+        $chatHistoryWithNewLastMessageFromAI = $this->aiChatService->getChatHistoryWithAiAnswer($chatHistory);
 
         $aiChatModel->data = $chatHistoryWithNewLastMessageFromAI->toArray();
         $aiChatModel->save();

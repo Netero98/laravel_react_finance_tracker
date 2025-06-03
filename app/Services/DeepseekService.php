@@ -15,19 +15,18 @@ use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
-class OpenAIService implements AiChatInterface
+class DeepseekService implements AiChatInterface
 {
     public function __construct(
         private readonly UserAgregatedFinanceDataService $userAgregatedFinanceDataService,
     ) {
     }
 
-    private const API_URL = 'https://api.openai.com/v1/chat/completions';
+    private const API_URL = 'https://api.deepseek.com/chat/completions';
 
     /**
      * @param Collection<UserChatHistoryDTO> $chatHistory
      */
-
     public function getChatHistoryWithAiAnswer(Collection $chatHistory): Collection
     {
         $userFinanceDataContext = $this->userAgregatedFinanceDataService->getAllUserAgregatedFinanceData();
@@ -40,13 +39,13 @@ class OpenAIService implements AiChatInterface
         ];
 
         try {
-            Log::info('Sending message to OpenAI API');
+            Log::info('Sending message to Deepseek API');
             return $this->getFreshChatHistoryWithNewLastMessageFromAI($chatHistory, $userFinanceDataContext);
         } catch (Throwable $e) {
-            Log::error('Exception in OpenAI API call: ' . $e->getMessage());
+            Log::error('Exception in Deepseek API call: ' . $e->getMessage());
 
             $chatHistory[] = new UserChatHistoryDTO(
-                id: UUID::uuid1()->toString(),
+                id: Uuid::uuid1()->toString(),
                 text: 'Something went wrong :( Please, try again later...',
                 isUser: false,
                 timestamp: new Carbon()
@@ -63,11 +62,11 @@ class OpenAIService implements AiChatInterface
      */
     private function getFreshChatHistoryWithNewLastMessageFromAI(Collection $chatHistory, array $userFinanceDataContext): Collection
     {
-        $apiKey = config('services.openai.api_key');
-        $model = config('services.openai.model');
+        $apiKey = config('services.deepseek.api_key');
+        $model = config('services.deepseek.model');
 
         if (empty($apiKey)) {
-            throw new Exception('OpenAI API key is not configured');
+            throw new Exception('Deepseek API key is not configured');
         }
 
         $allContextForAi = $userFinanceDataContext;
@@ -93,7 +92,7 @@ class OpenAIService implements AiChatInterface
             $responseData = $response->json();
             if (isset($responseData['choices'][0]['message']['content'])) {
                 $chatHistory[] = new UserChatHistoryDTO(
-                    id: UUID::uuid1()->toString(),
+                    id: Uuid::uuid1()->toString(),
                     text: $responseData['choices'][0]['message']['content'],
                     isUser: false,
                     timestamp: new Carbon()
@@ -101,13 +100,13 @@ class OpenAIService implements AiChatInterface
 
                 return $chatHistory;
             }
-            throw new Exception('Unexpected response format from OpenAI API');
+            throw new Exception('Unexpected response format from Deepseek API');
         }
 
-        Log::error('OpenAI API error', [
+        Log::error('Deepseek API error', [
             'status' => $response->status(),
             'body' => $response->body(),
         ]);
-        throw new Exception('Failed to get response from OpenAI API: ' . $response->status());
+        throw new Exception('Failed to get response from Deepseek API: ' . $response->status());
     }
 }
