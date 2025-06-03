@@ -72,7 +72,10 @@ class DeepseekService implements AiChatInterface
             throw new Exception('Deepseek API key is not configured');
         }
 
-        $messages = $chatHistory->toArray();
+        // Limit chat history to last messages to reduce API costs
+        $limitedChatHistory = $chatHistory->take(-10);
+
+        $messages = $limitedChatHistory->toArray();
         $messages[] = (new UserChatHistoryDTO(
             id: Uuid::uuid1()->toString(),
             content: 'Use Markdown in your response to beautify data, frontend can render it properly. Financial data of user: ' . json_encode($userFinanceDataContext),
