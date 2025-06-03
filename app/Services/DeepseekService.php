@@ -75,12 +75,12 @@ class DeepseekService implements AiChatInterface
         $messages = $chatHistory->toArray();
         $messages[] = (new UserChatHistoryDTO(
             id: Uuid::uuid1()->toString(),
-            content: 'Financial data of user: ' . json_encode($userFinanceDataContext),
+            content: 'Use Markdown in your response to beautify data, frontend can render it properly. Financial data of user: ' . json_encode($userFinanceDataContext),
             role: DeepseekService::ROLE_SYSTEM,
             timestamp: new Carbon()
         ))->toArray();
 
-        $response = Http::withHeaders([
+        $response = Http::timeout(30000)->withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type' => 'application/json',
         ])->post(self::API_URL, [

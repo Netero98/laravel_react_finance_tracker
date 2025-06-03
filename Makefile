@@ -15,9 +15,9 @@ prepare-env:
 		echo ".env already exists. Skipping."; \
 	fi
 up-detached:
-	docker compose -f compose.dev.yaml up -d
+	docker compose -f compose.dev.yaml up -d --build
 up:
-	docker compose -f compose.dev.yaml up
+	docker compose -f compose.dev.yaml up --build
 composer-i:
 	make exec cmd="composer install"
 migrate-fresh:

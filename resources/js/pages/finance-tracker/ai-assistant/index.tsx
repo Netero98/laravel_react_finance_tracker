@@ -5,6 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Bot, Send, User, Trash2 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { v1 as uuidv1 } from 'uuid';
+import ReactMarkdown from 'react-markdown';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -103,7 +104,13 @@ export default function AIAssistant({chatHistory}: Props) {
                                         <div className="flex items-start mb-1">
                                             {!(message.role === 'user') && <Bot className="h-5 w-5 mr-2 mt-0.5" />}
                                             {message.role === 'user' && <User className="h-5 w-5 mr-2 mt-0.5" />}
-                                            <p className="whitespace-pre-wrap">{message.content}</p>
+                                            <div className="whitespace-pre-wrap markdown-content">
+                                                {message.role === 'user' ? (
+                                                    <p>{message.content}</p>
+                                                ) : (
+                                                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                                                )}
+                                            </div>
                                         </div>
                                         <p className="text-xs opacity-70 text-right">
                                             {message.timestamp}
