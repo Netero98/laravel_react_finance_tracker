@@ -6,6 +6,7 @@ use App\DTO\UserChatHistoryDTO;
 use App\Http\Controllers\Controller;
 use App\Interfaces\AiChatInterface;
 use App\Models\AiChatHistory;
+use App\Services\DeepseekService;
 use App\Services\ExchangeRateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -50,8 +51,8 @@ class AIAssistantController extends Controller
         if (empty($userChatHistory->data)) {
             $initialSystemMessage = new UserChatHistoryDTO(
                 id: Uuid::uuid1()->toString(),
-                text: 'Hi! I am your personal AI assistant. I can help you with your finances. How can I help you today?',
-                isUser: false,
+                content: 'Hi! I am your personal AI assistant. I can help you with your finances. How can I help you today?',
+                role: DeepseekService::ROLE_SYSTEM,
                 timestamp: new Carbon()
             );
 
@@ -79,8 +80,8 @@ class AIAssistantController extends Controller
         foreach ($chatHistoryPlain as $chatHistoryArr) {
             $chatHistory[] = new UserChatHistoryDTO(
                 id: $chatHistoryArr['id'],
-                text: $chatHistoryArr['text'],
-                isUser: $chatHistoryArr['isUser'],
+                content: $chatHistoryArr['content'],
+                role: $chatHistoryArr['role'],
                 timestamp: new Carbon($chatHistoryArr['timestamp'])
             );
         }

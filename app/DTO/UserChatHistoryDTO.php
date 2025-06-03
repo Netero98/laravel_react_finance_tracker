@@ -9,8 +9,8 @@ readonly class UserChatHistoryDTO implements Arrayable
 {
     public function __construct(
         public string $id,
-        public string $text,
-        public bool   $isUser,
+        public string $content,
+        public string $role,
         public Carbon $timestamp
     )
     {
@@ -20,8 +20,8 @@ readonly class UserChatHistoryDTO implements Arrayable
     {
         return [
             'id' => $this->id,
-            'text' => $this->text,
-            'isUser' => $this->isUser,
+            'content' => $this->content,
+            'role' => $this->role,
             'timestamp' => $this->timestamp->toIso8601String()
         ];
     }

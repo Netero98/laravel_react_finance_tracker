@@ -17,6 +17,9 @@ use Throwable;
 
 class DeepseekService implements AiChatInterface
 {
+    public const ROLE_USER = 'user';
+    public const ROLE_SYSTEM = 'system';
+
     public function __construct(
         private readonly UserAgregatedFinanceDataService $userAgregatedFinanceDataService,
     ) {
@@ -46,8 +49,8 @@ class DeepseekService implements AiChatInterface
 
             $chatHistory[] = new UserChatHistoryDTO(
                 id: Uuid::uuid1()->toString(),
-                text: 'Something went wrong :( Please, try again later...',
-                isUser: false,
+                content: 'Something went wrong :( Please, try again later...',
+                role: DeepseekService::ROLE_SYSTEM,
                 timestamp: new Carbon()
             );
 
@@ -69,23 +72,22 @@ class DeepseekService implements AiChatInterface
             throw new Exception('Deepseek API key is not configured');
         }
 
-        $allContextForAi = $userFinanceDataContext;
-        $allContextForAi['chatHistory'] = $chatHistory->toArray();
+        $messages = $chatHistory->toArray();
+        $messages[] = (new UserChatHistoryDTO(
+            id: Uuid::uuid1()->toString(),
+            content: 'Financial data of user: ' . json_encode($userFinanceDataContext),
+            role: DeepseekService::ROLE_SYSTEM,
+            timestamp: new Carbon()
+        ))->toArray();
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type' => 'application/json',
         ])->post(self::API_URL, [
             'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are a helpful financial assistant. Answer user using the following data (your answer will be added as new chatHistory message): '
-                    . json_encode($allContextForAi, JSON_PRETTY_PRINT)
-                ],
-            ],
-            'temperature' => 0.7,
-            'max_tokens' => 500,
+            'messages' => $messages,
+            'temperature' => 1.5,
+            'max_tokens' => 2500,
         ]);
 
         if ($response->successful()) {
@@ -93,8 +95,8 @@ class DeepseekService implements AiChatInterface
             if (isset($responseData['choices'][0]['message']['content'])) {
                 $chatHistory[] = new UserChatHistoryDTO(
                     id: Uuid::uuid1()->toString(),
-                    text: $responseData['choices'][0]['message']['content'],
-                    isUser: false,
+                    content: $responseData['choices'][0]['message']['content'],
+                    role: DeepseekService::ROLE_SYSTEM,
                     timestamp: new Carbon()
                 );
 

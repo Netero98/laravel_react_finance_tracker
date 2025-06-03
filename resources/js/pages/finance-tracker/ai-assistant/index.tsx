@@ -15,8 +15,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Message {
     id: string;
-    text: string;
-    isUser: boolean;
+    content: string;
+    role: string;
     timestamp: Date;
 }
 
@@ -32,15 +32,15 @@ export default function AIAssistant({chatHistory}: Props) {
 
         const userMessage: Message = {
             id: uuidv1(),
-            text: inputMessage,
-            isUser: true,
+            content: inputMessage,
+            role: 'user',
             timestamp: new Date(),
         };
 
         let dataToSubmit = chatHistory
         dataToSubmit.push(userMessage)
 
-        await router.post(
+        router.post(
             route('ai-assistant.chat'),
             {
                 chatHistory: dataToSubmit, 
@@ -76,19 +76,19 @@ export default function AIAssistant({chatHistory}: Props) {
                             {chatHistory.map((message) => (
                                 <div
                                     key={message.id}
-                                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div
                                         className={`max-w-[80%] rounded-lg p-3 ${
-                                            message.isUser
+                                            message.role === 'user'
                                                 ? 'bg-blue-500 text-white'
                                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                                         }`}
                                     >
                                         <div className="flex items-start mb-1">
-                                            {!message.isUser && <Bot className="h-5 w-5 mr-2 mt-0.5" />}
-                                            {message.isUser && <User className="h-5 w-5 mr-2 mt-0.5" />}
-                                            <p className="whitespace-pre-wrap">{message.text}</p>
+                                            {!(message.role === 'user') && <Bot className="h-5 w-5 mr-2 mt-0.5" />}
+                                            {message.role === 'user' && <User className="h-5 w-5 mr-2 mt-0.5" />}
+                                            <p className="whitespace-pre-wrap">{message.content}</p>
                                         </div>
                                         <p className="text-xs opacity-70 text-right">
                                             {message.timestamp}
