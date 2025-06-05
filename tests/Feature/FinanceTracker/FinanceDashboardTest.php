@@ -143,14 +143,20 @@ test('finance dashboard only shows data for the authenticated user', function ()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
             ->where('currentBalanceUSD', 0) // User1 has no wallets, so balance should be 0
-            ->where(
-                'balanceHistoryUSD',
-                [
-                    [
-                    'balance' => null,
-                    'date' => '2025-05-30',
-                    ],
-                ]
-            )
+            ->has('balanceHistoryUSD', 1) // Should have at least 1 entry (user creation date)
+            ->where('balanceHistoryUSD', function ($balanceHistory) {
+                if (count($balanceHistory) !== 1) {
+                    return false;
+                }
+
+                $singleNullBalanceItem = $balanceHistory[0];
+
+                //because there should be only one initial balance item without data
+                if (!isset($singleNullBalanceItem['date']) || $singleNullBalanceItem['balance'] !== null) {
+                    return false;
+                }
+
+                return true;
+            })
         );
 });
