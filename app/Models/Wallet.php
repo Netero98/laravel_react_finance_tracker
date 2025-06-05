@@ -34,6 +34,13 @@ class Wallet extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function refresh()
+    {
+        parent::refresh();
+        $this->currentBalanceRuntimeCache = null;
+        return $this;
+    }
+
     public function getInitialBalancePlusTransactionsDelta()
     {
         if ($this->currentBalanceRuntimeCache !== null) {
