@@ -5,7 +5,10 @@ ifndef cmd
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
-init: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+#light init without images rebuild for faster refreshment
+ini: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+
+init: prepare-env down up-detached-build composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
 
 prepare-env:
 	@if [ ! -f .env ]; then \
@@ -14,8 +17,10 @@ prepare-env:
 	else \
 		echo ".env already exists. Skipping."; \
 	fi
-up-detached:
+up-detached-build:
 	docker compose -f compose.dev.yaml up -d --build
+up-detached:
+	docker compose -f compose.dev.yaml up -d
 up:
 	docker compose -f compose.dev.yaml up --build
 composer-i:
