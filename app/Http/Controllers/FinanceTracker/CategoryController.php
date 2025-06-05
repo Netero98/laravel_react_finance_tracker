@@ -12,7 +12,11 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
-        $categories = Category::query()->where('user_id', auth()->id())->paginate(8);
+        $categories = Category::query()
+            ->where('user_id', auth()->id())
+            ->orderByDesc('is_system')
+            ->orderBy('name')
+            ->paginate(8);
 
         return Inertia::render('finance-tracker/categories/index', [
             'categories' => $categories
@@ -22,7 +26,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,NULL,id,user_id,' . auth()->id(),
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -39,11 +43,11 @@ class CategoryController extends Controller
         }
 
         if ($category->is_system) {
-            abort(403, 'System categories cannot be modified.');
+            return redirect()->back()->withErrors(['category' => 'System categories cannot be modified.']);
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id . ',id,user_id,' . auth()->id(),
         ]);
 
         $category->update($validated);
@@ -58,7 +62,7 @@ class CategoryController extends Controller
         }
 
         if ($category->is_system) {
-            abort(403, 'System categories cannot be deleted.');
+            return redirect()->back()->withErrors(['category' => 'System categories cannot be deleted.']);
         }
 
         $category->delete();
