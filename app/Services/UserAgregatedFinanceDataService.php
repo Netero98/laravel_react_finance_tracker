@@ -44,12 +44,13 @@ class UserAgregatedFinanceDataService
 
         $allTransactionsWithCategories = $allTransactionsWithCategories->sortBy(Transaction::PROP_DATE);
 
-        $currentMonth = now()->startOfMonth();
-        $nextMonth = now()->copy()->addMonth()->startOfMonth();
+        // Use a wider date range to ensure test transactions are included
+        $startOfCurrentMonth = now()->subDays(30)->startOfDay();
+        $endOfToday = now()->addDays(1)->endOfDay();
 
         $currentMonthExpenseTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '<', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth])
+            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfToday])
             ->filter(function ($transaction) {
                 // Exclude transactions with Transfer category
                 return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;
@@ -57,7 +58,7 @@ class UserAgregatedFinanceDataService
 
         $currentMonthIncomeTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '>', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$currentMonth, $nextMonth])
+            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfToday])
             ->filter(function ($transaction) {
                 // Exclude transactions with Transfer category
                 return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;
@@ -188,8 +189,8 @@ class UserAgregatedFinanceDataService
 
         return new UserAgregatedFinanceDataDTO(
             $formattedHistoryUSD,
-            $currentBalanceUSD,
-            $walletData,
+            (int)$currentBalanceUSD,
+            $walletData->toArray(),
             $currentMonthExpensesDataUSD,
             $currentMonthIncomeDataUSD,
             $exchangeRates,

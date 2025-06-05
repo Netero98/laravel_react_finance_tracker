@@ -8,8 +8,8 @@ readonly class UserAgregatedFinanceDataDTO
 {
     public function __construct(
         public  array $balanceHistoryUSD,
-        public float $currentBalanceUSD,
-        public Collection $walletData,
+        public int $currentBalanceUSD,
+        public array $walletData,
         public array $currentMonthExpensesUSD,
         public array $currentMonthIncomeUSD,
         public array $exchangeRates,
