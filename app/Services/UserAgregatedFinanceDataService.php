@@ -44,13 +44,12 @@ class UserAgregatedFinanceDataService
 
         $allTransactionsWithCategories = $allTransactionsWithCategories->sortBy(Transaction::PROP_DATE);
 
-        // Use a wider date range to ensure test transactions are included
-        $startOfCurrentMonth = now()->subDays(30)->startOfDay();
-        $endOfToday = now()->addDays(1)->endOfDay();
+        $startOfCurrentMonth = now()->startOfMonth()->startOfDay();
+        $endOfCurrentMonth = now()->addMonth()->startOfMonth();
 
         $currentMonthExpenseTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '<', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfToday])
+            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfCurrentMonth])
             ->filter(function ($transaction) {
                 // Exclude transactions with Transfer category
                 return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;
@@ -58,7 +57,7 @@ class UserAgregatedFinanceDataService
 
         $currentMonthIncomeTransactionsWithCategories = $allTransactionsWithCategories
             ->where(Transaction::PROP_AMOUNT, '>', 0)
-            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfToday])
+            ->whereBetween(Transaction::PROP_DATE, [$startOfCurrentMonth, $endOfCurrentMonth])
             ->filter(function ($transaction) {
                 // Exclude transactions with Transfer category
                 return $transaction->category->name !== Category::SYSTEM_CATEGORY_TRANSFER;

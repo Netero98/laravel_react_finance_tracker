@@ -65,7 +65,7 @@ test('getAllUserAgregatedFinanceData returns correct data structure', function (
     Transaction::create([
         'amount' => 200,
         'description' => 'Income Transaction',
-        'date' => now()->subDays(5),
+        'date' => now()->startOfMonth()->addDays(1),
         'category_id' => $incomeCategory->id,
         'wallet_id' => $usdWallet->id,
     ]);
@@ -73,7 +73,7 @@ test('getAllUserAgregatedFinanceData returns correct data structure', function (
     Transaction::create([
         'amount' => -100,
         'description' => 'Expense Transaction',
-        'date' => now()->subDays(3),
+        'date' => now()->startOfMonth()->addDays(3),
         'category_id' => $expenseCategory->id,
         'wallet_id' => $usdWallet->id,
     ]);
@@ -81,7 +81,7 @@ test('getAllUserAgregatedFinanceData returns correct data structure', function (
     Transaction::create([
         'amount' => -50,
         'description' => 'Transfer Out',
-        'date' => now()->subDays(2),
+        'date' => now()->startOfMonth()->addDays(5),
         'category_id' => $transferCategory->id,
         'wallet_id' => $usdWallet->id,
     ]);
@@ -89,7 +89,7 @@ test('getAllUserAgregatedFinanceData returns correct data structure', function (
     Transaction::create([
         'amount' => 50,
         'description' => 'Transfer In',
-        'date' => now()->subDays(2),
+        'date' => now()->startOfMonth()->addDays(10),
         'category_id' => $transferCategory->id,
         'wallet_id' => $eurWallet->id,
     ]);

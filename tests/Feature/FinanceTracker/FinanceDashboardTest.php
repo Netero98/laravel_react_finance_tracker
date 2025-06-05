@@ -176,6 +176,106 @@ test('negative values are shown like zero in pie charts', function () {
 });
 
 test('current month income and expense include only current month transactions without transfers', function () {
+    $user = User::factory()->create();
 
+    // Create wallets
+    $wallet = Wallet::create([
+        'name' => 'Test Wallet',
+        'initial_balance' => 1000,
+        'currency' => 'USD',
+        'user_id' => $user->id,
+    ]);
+
+    // Create categories
+    $incomeCategory = Category::create([
+        'name' => 'Income Category',
+        'user_id' => $user->id,
+    ]);
+
+    $expenseCategory = Category::create([
+        'name' => 'Expense Category',
+        'user_id' => $user->id,
+    ]);
+
+    $transferCategory = Category::create([
+        'name' => Category::SYSTEM_CATEGORY_TRANSFER,
+        'user_id' => $user->id,
+    ]);
+
+    // Create current month transactions
+    $currentMonthIncome = Transaction::create([
+        'amount' => 500,
+        'description' => 'Current Month Income',
+        'date' => now()->startOfMonth()->addDays(0),
+        'category_id' => $incomeCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    // Create current month transactions
+    $currentMonthIncome = Transaction::create([
+        'amount' => 500,
+        'description' => 'Redundant Current Month Income',
+        'date' => now()->startOfMonth()->addDays(32),
+        'category_id' => $incomeCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    $currentMonthExpense = Transaction::create([
+        'amount' => -200,
+        'description' => 'Current Month Expense',
+        'date' => now()->startOfMonth()->addDays(1),
+        'category_id' => $expenseCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    // Create transfer transaction in current month (should be excluded)
+    $currentMonthTransfer = Transaction::create([
+        'amount' => 300,
+        'description' => 'Current Month Transfer',
+        'date' => now()->startOfMonth()->addDays(5),
+        'category_id' => $transferCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    // Create previous month transaction (should be excluded)
+    $previousMonthIncome = Transaction::create([
+        'amount' => 1000,
+        'description' => 'Previous Month Income',
+        'date' => now()->subMonth()->startOfMonth()->addDays(26),
+        'category_id' => $incomeCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    $previousMonthExpense = Transaction::create([
+        'amount' => -500,
+        'description' => 'Previous Month Expense',
+        'date' => now()->subMonth()->startOfMonth()->addDays(10),
+        'category_id' => $expenseCategory->id,
+        'wallet_id' => $wallet->id,
+    ]);
+
+    $this->actingAs($user)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard')
+            ->where('currentMonthIncomeUSD', function ($incomeData) {
+                // Should only include current month income (not transfers or previous month)
+                if (count($incomeData) !== 1) {
+                    return false;
+                }
+
+                $income = $incomeData[0];
+                return $income['name'] === 'Income Category' && $income['amount'] === 500;
+            })
+            ->where('currentMonthExpensesUSD', function ($expenseData) {
+                // Should only include current month expenses (not transfers or previous month)
+                if (count($expenseData) !== 1) {
+                    return false;
+                }
+
+                $expense = $expenseData[0];
+                return $expense['name'] === 'Expense Category' && $expense['amount'] === -200;
+            })
+        );
 });
-
