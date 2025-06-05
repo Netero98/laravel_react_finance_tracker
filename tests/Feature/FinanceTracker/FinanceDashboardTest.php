@@ -174,3 +174,8 @@ test('authenticated users can visit the dashboard', function () {
 test('negative values are shown like zero in pie charts', function () {
 
 });
+
+test('current month income and expense include only current month transactions without transfers', function () {
+
+});
+
