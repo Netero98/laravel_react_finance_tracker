@@ -6,9 +6,9 @@ endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
 #light init without images rebuild for faster refreshment
-ini: prepare-env down up-detached composer-i create-test-db migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+ini: prepare-env down up-detached composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
 
-init: prepare-env down up-detached-build composer-i create-test-db migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+init: prepare-env down up-detached-build composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
 
 prepare-env:
 	@if [ ! -f .env ]; then \
@@ -39,5 +39,11 @@ down:
 	docker compose -f compose.dev.yaml down
 create-test-db:
 	make exec cmd="php artisan app:recreate-test-database"
+clear-cache:
+	make exec cmd="php artisan cache:clear"
+	make exec cmd="php artisan config:clear"
+	make exec cmd="php artisan route:clear"
+	make exec cmd="php artisan view:clear"
+	make exec cmd="php artisan event:clear"
 test:
 	make exec cmd="php artisan test --parallel --recreate-databases"
