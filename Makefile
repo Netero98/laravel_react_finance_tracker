@@ -5,16 +5,10 @@ ifndef cmd
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
-exec-testing:
-ifndef cmd
-	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan migrate:fresh")
-endif
-	docker compose --env-file .env.testing -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
-
 #light init without images rebuild for faster refreshment
-ini: prepare-env down up-detached composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+ini: prepare-env down up-detached composer-i create-test-db migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
 
-init: prepare-env down up-detached-build composer-i migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
+init: prepare-env down up-detached-build composer-i create-test-db migrate-fresh seed app-key-gen npm-i npm-run-dev-detached
 
 prepare-env:
 	@if [ ! -f .env ]; then \
@@ -43,5 +37,7 @@ npm-run-dev-detached:
 	make exec cmd="npm run dev -d"
 down:
 	docker compose -f compose.dev.yaml down
+create-test-db:
+	make exec cmd="php artisan app:recreate-test-database"
 test:
-	make exec-testing cmd="php artisan test --parallel"
+	make exec cmd="php artisan test --parallel --recreate-databases"
