@@ -22,7 +22,7 @@ up-detached-build:
 up-detached:
 	docker compose -f compose.dev.yaml up -d
 up:
-	docker compose -f compose.dev.yaml up --build
+	docker compose -f compose.dev.yaml up
 composer-i:
 	make exec cmd="composer install"
 migrate-fresh:
