@@ -24,7 +24,7 @@ class WalletController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'unique:wallets,name,NULL,id,user_id,' . auth()->id()],
             'initial_balance' => 'required|numeric|min:0',
             'currency' => ['required', 'string', 'in:' . implode(',', ExchangeRateService::ALL_EXTERNAL_CURRENCIES)],
         ]);
