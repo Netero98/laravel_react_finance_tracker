@@ -109,7 +109,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
 
         let amount = formData.amount;
 
-        if (formData.use_balance_input) {
+        if (formData.use_balance_input && !isTransfer) {
             if (!formData.new_balance || !formData.wallet_id) {
                 return;
             }
@@ -132,18 +132,49 @@ export default function Index({ transactions, categories, wallets, exchangeRates
             amount = newBalance - walletBalance;
         }
 
-        const dataToSubmit = { ...formData, amount: amount };
-
-        // If it's a transfer between different currencies and auto conversion is enabled,
-        // make sure the to_amount is set to the calculated amount
-        if (isTransfer && formData.use_auto_conversion && calculatedAmount !== null) {
-            dataToSubmit.to_amount = calculatedAmount.toString();
-        }
-
         if (editingTransaction) {
-            router.put(`/transactions/${editingTransaction.id}`, dataToSubmit);
+            // For editing, we always use the original endpoint
+            // The backend doesn't support editing transfers as a whole, only individual transactions
+            const amountToSubmit = editingTransaction.amount < 0 ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount));
+
+            router.put(`/transactions/${editingTransaction.id}`, {
+                amount: amountToSubmit,
+                description: formData.description,
+                date: formData.date,
+                category_id: formData.category_id,
+                wallet_id: formData.wallet_id,
+            });
+        } else if (isTransfer) {
+            // For new transfers, use the new transfer endpoint with the correct parameters
+            const fromAmount = parseFloat(formData.amount);
+            let toAmount = fromAmount;
+
+            // If it's a transfer between different currencies and auto conversion is enabled,
+            // use the calculated amount
+            if (formData.use_auto_conversion && calculatedAmount !== null) {
+                toAmount = calculatedAmount;
+            } else if (formData.to_amount) {
+                toAmount = parseFloat(formData.to_amount);
+            }
+
+            router.post('/transactions/transfer', {
+                from_amount: fromAmount,
+                to_amount: toAmount,
+                description: formData.description,
+                date: formData.date,
+                category_id: formData.category_id,
+                from_wallet_id: formData.from_wallet_id,
+                to_wallet_id: formData.to_wallet_id,
+            });
         } else {
-            router.post('/transactions', dataToSubmit);
+            // For regular transactions, use the original endpoint
+            router.post('/transactions', {
+                amount: amount,
+                description: formData.description,
+                date: formData.date,
+                category_id: formData.category_id,
+                wallet_id: formData.wallet_id,
+            });
         }
 
         setIsOpen(false);
@@ -166,20 +197,66 @@ export default function Index({ transactions, categories, wallets, exchangeRates
 
     const handleEdit = (transaction: Transaction) => {
         setEditingTransaction(transaction);
-        setFormData({
-            amount: Math.abs(transaction.amount).toString(),
-            description: transaction.description || '',
-            date: new Date(transaction.date).toISOString().split('T')[0],
-            type: transaction.type,
-            category_id: transaction.category_id.toString(),
-            wallet_id: transaction.wallet_id.toString(),
-            from_wallet_id: '',
-            to_wallet_id: '',
-            use_auto_conversion: true,
-            to_amount: '',
-            use_balance_input: false,
-            new_balance: '',
-        });
+
+        // Check if this is a transfer transaction
+        const isTransferTransaction =
+            transaction.category &&
+            transaction.category.name === 'Transfer' &&
+            transaction.category.is_system;
+
+        // Set isTransfer state based on the transaction category
+        setIsTransfer(isTransferTransaction);
+
+        if (isTransferTransaction) {
+            // For transfers, set from_wallet_id or to_wallet_id based on whether it's an outgoing or incoming transaction
+            if (transaction.amount < 0) {
+                // Outgoing transaction (negative amount)
+                setFormData({
+                    amount: Math.abs(transaction.amount).toString(),
+                    description: transaction.description || '',
+                    date: new Date(transaction.date).toISOString().split('T')[0],
+                    category_id: transaction.category_id.toString(),
+                    wallet_id: transaction.wallet_id.toString(),
+                    from_wallet_id: transaction.wallet_id.toString(),
+                    to_wallet_id: '', // We don't know the destination wallet from just this transaction
+                    use_auto_conversion: true,
+                    to_amount: '',
+                    use_balance_input: false,
+                    new_balance: '',
+                });
+            } else {
+                // Incoming transaction (positive amount)
+                setFormData({
+                    amount: Math.abs(transaction.amount).toString(),
+                    description: transaction.description || '',
+                    date: new Date(transaction.date).toISOString().split('T')[0],
+                    category_id: transaction.category_id.toString(),
+                    wallet_id: transaction.wallet_id.toString(),
+                    from_wallet_id: '', // We don't know the source wallet from just this transaction
+                    to_wallet_id: transaction.wallet_id.toString(),
+                    use_auto_conversion: true,
+                    to_amount: transaction.amount.toString(),
+                    use_balance_input: false,
+                    new_balance: '',
+                });
+            }
+        } else {
+            // For regular transactions
+            setFormData({
+                amount: Math.abs(transaction.amount).toString(),
+                description: transaction.description || '',
+                date: new Date(transaction.date).toISOString().split('T')[0],
+                category_id: transaction.category_id.toString(),
+                wallet_id: transaction.wallet_id.toString(),
+                from_wallet_id: '',
+                to_wallet_id: '',
+                use_auto_conversion: true,
+                to_amount: '',
+                use_balance_input: false,
+                new_balance: '',
+            });
+        }
+
         setIsOpen(true);
     };
 
@@ -278,6 +355,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                             setIsTransfer(isTransferCategory);
                                             setFormData({ ...formData, category_id: value });
                                         }}
+                                        disabled={!!editingTransaction} // Disable category selection when editing
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
@@ -293,6 +371,11 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                 ))}
                                         </SelectContent>
                                     </Select>
+                                    {editingTransaction && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Category cannot be changed when editing a transaction.
+                                        </p>
+                                    )}
                                 </div>
                                 {!isTransfer ? (
                                     <div>
@@ -301,6 +384,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                             onValueChange={(value) => {
                                                 setFormData({ ...formData, wallet_id: value });
                                             }}
+                                            disabled={editingTransaction && isTransfer} // Disable wallet selection when editing a transfer
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select wallet" />
@@ -316,6 +400,11 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        {editingTransaction && isTransfer && (
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Wallet cannot be changed when editing a transfer transaction.
+                                            </p>
+                                        )}
                                     </div>
                                 ) : (
                                     <>
@@ -326,6 +415,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                 onValueChange={(value) =>
                                                     setFormData({ ...formData, from_wallet_id: value, wallet_id: value })
                                                 }
+                                                disabled={!!editingTransaction} // Disable from_wallet selection when editing
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select source wallet" />
@@ -341,6 +431,11 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            {editingTransaction && (
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    Source wallet cannot be changed when editing a transfer transaction.
+                                                </p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium mb-1">To Wallet</label>
@@ -349,6 +444,7 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                 onValueChange={(value) =>
                                                     setFormData({ ...formData, to_wallet_id: value })
                                                 }
+                                                disabled={!!editingTransaction} // Disable to_wallet selection when editing
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select destination wallet" />
@@ -364,6 +460,11 @@ export default function Index({ transactions, categories, wallets, exchangeRates
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            {editingTransaction && (
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    Destination wallet cannot be changed when editing a transfer transaction.
+                                                </p>
+                                            )}
                                         </div>
 
                                         {formData.from_wallet_id && formData.to_wallet_id && (() => {
