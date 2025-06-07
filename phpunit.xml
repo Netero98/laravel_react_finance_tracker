@@ -11,6 +11,9 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Browser">
+            <directory>tests/Browser</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
@@ -33,5 +36,7 @@
         <env name="DB_PORT" value="5432"/>
         <env name="DB_USERNAME" value="laravel"/>
         <env name="DB_PASSWORD" value="secret"/>
+        <env name="DUSK_DRIVER_URL" value="http://selenium:4444/wd/hub"/>
+        <env name="APP_URL" value="http://web"/>
     </php>
 </phpunit>

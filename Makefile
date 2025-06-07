@@ -47,3 +47,9 @@ clear-cache:
 	make exec cmd="php artisan event:clear"
 test:
 	make exec cmd="php artisan test --parallel --recreate-databases"
+test-e2e:
+	make exec cmd="php artisan pest:dusk"
+dusk:
+	make exec cmd="php artisan dusk"
+dusk-fails:
+	make exec cmd="php artisan dusk:fails"
