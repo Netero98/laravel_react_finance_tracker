@@ -47,7 +47,7 @@ npm-run-dev-detached:
 	make exec cmd="npm run dev -d"
 
 down:
-	docker compose -f compose.dev.yaml --env-file .env.local down --remove-orphans
+	docker compose -f compose.dev.yaml --env-file .env.local down --remove-orphans > /dev/null 2>&1 && echo "Containers stopped and removed."
 
 recreate-test-db:
 	make exec cmd="php artisan app:recreate-test-database"

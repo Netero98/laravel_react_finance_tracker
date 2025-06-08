@@ -4,7 +4,7 @@ use Laravel\Dusk\Browser;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-test('user can view login page', function () {
+//test('user can view login page', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/login')
 //                ->assertSee('Log in to your account')
@@ -12,9 +12,9 @@ test('user can view login page', function () {
 //                ->assertSee('Password')
 //                ->assertSee('Remember me');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can login with correct credentials', function () {
+//test('user can login with correct credentials', function () {
 //    $user = User::factory()->create([
 //        'email' => 'test@example.com',
 //        'password' => Hash::make('password'),
@@ -28,9 +28,9 @@ test('user can login with correct credentials', function () {
 //                ->waitForLocation('/dashboard')
 //                ->assertPathIs('/dashboard');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot login with incorrect email', function () {
+//test('user cannot login with incorrect email', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/login')
 //                ->type('email', 'wrong@example.com')
@@ -38,9 +38,9 @@ test('user cannot login with incorrect email', function () {
 //                ->press('Log in')
 //                ->assertSee('These credentials do not match our records');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot login with incorrect password', function () {
+//test('user cannot login with incorrect password', function () {
 //    $user = User::factory()->create([
 //        'email' => 'test2@example.com',
 //        'password' => Hash::make('password'),
@@ -53,9 +53,9 @@ test('user cannot login with incorrect password', function () {
 //                ->press('Log in')
 //                ->assertSee('These credentials do not match our records');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user is redirected to intended page after login', function () {
+//test('user is redirected to intended page after login', function () {
 //    $user = User::factory()->create([
 //        'email' => 'test3@example.com',
 //        'password' => Hash::make('password'),
@@ -70,4 +70,4 @@ test('user is redirected to intended page after login', function () {
 //                ->waitForLocation('/dashboard')
 //                ->assertPathIs('/dashboard');  // Should be redirected to the intended page
 //    });
-})->group('auth');
+//})->group('auth');

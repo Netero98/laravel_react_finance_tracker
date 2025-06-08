@@ -4,7 +4,7 @@ use Laravel\Dusk\Browser;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-test('authenticated user can logout', function () {
+//test('authenticated user can logout', function () {
 //    $user = User::factory()->create([
 //        'email' => 'logout-test@example.com',
 //        'password' => Hash::make('password'),
@@ -24,11 +24,11 @@ test('authenticated user can logout', function () {
 //                ->waitForLocation('/login') // After logout, should redirect to login
 //                ->assertPathIs('/login');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('logged out user is redirected to login when accessing protected routes', function () {
+//test('logged out user is redirected to login when accessing protected routes', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/dashboard') // This requires authentication
 //                ->assertPathIs('/login'); // Should be redirected to login
 //    });
-})->group('auth');
+//})->group('auth');

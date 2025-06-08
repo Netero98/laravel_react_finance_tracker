@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
 
-test('user can view forgot password page', function () {
+//test('user can view forgot password page', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/login')
 //                ->clickLink('Forgot your password?')
@@ -14,9 +14,9 @@ test('user can view forgot password page', function () {
 //                ->assertSee('Email')
 //                ->assertSee('Email Password Reset Link');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can request password reset link', function () {
+//test('user can request password reset link', function () {
 //    $user = User::factory()->create([
 //        'email' => 'reset-test@example.com',
 //    ]);
@@ -28,9 +28,9 @@ test('user can request password reset link', function () {
 //                ->waitForText('We have emailed your password reset link')
 //                ->assertSee('We have emailed your password reset link');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot request password reset for non-existent email', function () {
+//test('user cannot request password reset for non-existent email', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/forgot-password')
 //                ->type('email', 'nonexistent@example.com')
@@ -39,9 +39,9 @@ test('user cannot request password reset for non-existent email', function () {
 //                ->assertSee('We have emailed your password reset link');
 //        // Note: For security reasons, Laravel shows the same message even if the email doesn't exist
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can reset password with valid token', function () {
+//test('user can reset password with valid token', function () {
 //    // Create a user
 //    $user = User::factory()->create([
 //        'email' => 'reset-token-test@example.com',
@@ -68,9 +68,9 @@ test('user can reset password with valid token', function () {
 //                ->waitForLocation('/dashboard')
 //                ->assertPathIs('/dashboard');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot reset password with invalid token', function () {
+//test('user cannot reset password with invalid token', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/reset-password/invalid-token')
 //                ->type('email', 'test@example.com')
@@ -79,4 +79,4 @@ test('user cannot reset password with invalid token', function () {
 //                ->press('Reset Password')
 //                ->assertSee('This password reset token is invalid');
 //    });
-})->group('auth');
+//})->group('auth');

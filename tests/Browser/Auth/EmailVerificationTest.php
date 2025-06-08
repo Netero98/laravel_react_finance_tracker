@@ -26,7 +26,7 @@ test('unverified user sees verification notice', function () {
     });
 })->group('auth');
 
-test('verified user is not shown verification notice', function () {
+//test('verified user is not shown verification notice', function () {
 //    $user = User::factory()->create([
 //        'email' => 'verified@example.com',
 //        'password' => Hash::make('password'),
@@ -43,9 +43,9 @@ test('verified user is not shown verification notice', function () {
 //                ->visit('/verify-email')  // Try to visit verification page directly
 //                ->assertPathIsNot('/verify-email');  // Should be redirected away
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can request a new verification link', function () {
+//test('user can request a new verification link', function () {
 //    $user = User::factory()->create([
 //        'email' => 'need-verification@example.com',
 //        'password' => Hash::make('password'),
@@ -63,9 +63,9 @@ test('user can request a new verification link', function () {
 //                ->waitForText('A new verification link has been sent')
 //                ->assertSee('A new verification link has been sent');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can verify email with valid verification link', function () {
+//test('user can verify email with valid verification link', function () {
 //    Event::fake([Verified::class]);
 //
 //    $user = User::factory()->create([
@@ -93,4 +93,4 @@ test('user can verify email with valid verification link', function () {
 //    });
 //
 //    Event::assertDispatched(Verified::class);
-})->group('auth');
+//})->group('auth');

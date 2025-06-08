@@ -3,7 +3,7 @@
 use Laravel\Dusk\Browser;
 use App\Models\User;
 //
-test('user can view registration page', function () {
+//test('user can view registration page', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/register')
 //                ->assertSee('Register')
@@ -11,9 +11,9 @@ test('user can view registration page', function () {
 //                ->assertSee('Password')
 //                ->assertSee('Confirm Password');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user can register with valid credentials', function () {
+//test('user can register with valid credentials', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/register')
 //                ->type('name', 'Test User')
@@ -24,9 +24,9 @@ test('user can register with valid credentials', function () {
 //                ->waitForLocation('/dashboard')
 //                ->assertPathIs('/dashboard');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot register with invalid email', function () {
+//test('user cannot register with invalid email', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/register')
 //                ->type('name', 'Test User')
@@ -36,9 +36,9 @@ test('user cannot register with invalid email', function () {
 //                ->press('Register')
 //                ->assertSee('The email must be a valid email address');
 //    });
-})->group('auth');
+//})->group('auth');
 //
-test('user cannot register with password confirmation mismatch', function () {
+//test('user cannot register with password confirmation mismatch', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/register')
 //                ->type('name', 'Test User')
@@ -48,4 +48,4 @@ test('user cannot register with password confirmation mismatch', function () {
 //                ->press('Register')
 //                ->assertSee('The password confirmation does not match');
 //    });
-})->group('auth');
+//})->group('auth');
