@@ -21,4 +21,3 @@ COMPOSE_BAKE=true docker compose -f ./compose.prod.yaml build --pull
 docker compose -f ./compose.prod.yaml up -d --build
 ```
 -Click deploy. Redeploy if need, front is rebuilt and all works fine BUT with a little downtime
-

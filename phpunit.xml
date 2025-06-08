@@ -21,22 +21,6 @@
         </include>
     </source>
     <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
-        <env name="BCRYPT_ROUNDS" value="4"/>
-        <env name="CACHE_STORE" value="array"/>
-        <env name="MAIL_MAILER" value="array"/>
-        <env name="PULSE_ENABLED" value="false"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="TELESCOPE_ENABLED" value="false"/>
-        <env name="DB_CONNECTION" value="pgsql"/>
-        <env name="DB_DATABASE" value="app_testing"/>
-        <env name="DB_HOST" value="postgres"/>
-        <env name="DB_PORT" value="5432"/>
-        <env name="DB_USERNAME" value="laravel"/>
-        <env name="DB_PASSWORD" value="secret"/>
-        <env name="DUSK_DRIVER_URL" value="http://selenium:4444/wd/hub"/>
-        <env name="APP_URL" value="http://web"/>
+<!--        all envs are configured in docker compose commands via exact env files-->
     </php>
 </phpunit>
