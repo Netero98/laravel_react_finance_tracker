@@ -61,6 +61,7 @@ clear-cache:
 
 check:
 	make ini-testing
+	rm -f public/hot
 	make exec cmd="php artisan test --parallel --recreate-databases" || { EXIT_CODE=$$?; make delete-temp-env; make down; exit $$EXIT_CODE; }
 	make delete-temp-env
 	make down

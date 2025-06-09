@@ -39,7 +39,7 @@ return new class extends Migration
             $table->decimal('balance', 10, 2)->default(0);
         });
 
-        Schema::table('category', function (Blueprint $table) {
+        Schema::table('categories', function (Blueprint $table) {
             $table->enum('type', ['income', 'expense']);
         });
     }

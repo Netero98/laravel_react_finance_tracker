@@ -4,15 +4,15 @@ use Laravel\Dusk\Browser;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-//test('user can view login page', function () {
-//    $this->browse(function (Browser $browser) {
-//        $browser->visit('/login')
-//                ->assertSee('Log in to your account')
-//                ->assertSee('Email address')
-//                ->assertSee('Password')
-//                ->assertSee('Remember me');
-//    });
-//})->group('auth');
+test('user can view login page', function () {
+    $this->browse(function (Browser $browser) {
+        $browser->visit('/login')
+                ->assertSee('Log in to your account')
+                ->assertSee('Email address')
+                ->assertSee('Password')
+                ->assertSee('Remember me');
+    });
+})->group('auth');
 //
 //test('user can login with correct credentials', function () {
 //    $user = User::factory()->create([

@@ -53,7 +53,10 @@ class ExchangeRateService
                 });
             });
         } catch (\Exception $e) {
-            Log::error('Exception in getExchangeRates: ' . $e->getMessage());
+            if (!app()->environment(['local', 'testing'])) {
+                Log::error('Exception in getExchangeRates: ' . $e->getMessage());
+            }
+
             return $this->getFallbackRates();
         }
     }
