@@ -1,0 +1,244 @@
+services:
+    traefik:
+        image: traefik:2.11
+        command:
+            --providers.docker=true
+            --providers.docker.exposedByDefault=false
+            --entryPoints.http.address=:80
+        networks:
+            - traefik-public
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=traefik-public
+
+    frontend:
+        image: ${REGISTRY}/finsly-frontend:${IMAGE_TAG}
+        environment:
+            REACT_APP_AUTH_URL: http://api.localhost
+        networks:
+            - traefik-public
+            - default
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=traefik-public
+            - traefik.http.routers.frontend.rule=Host(`localhost`) || Host(`www.localhost`)
+            - traefik.http.routers.frontend.entryPoints=http
+            - traefik.http.services.frontend.loadBalancer.server.port=80
+            - traefik.http.middlewares.frontend-redirect.redirectRegex.regex=^(https?://)www.localhost/(.*)$$
+            - traefik.http.middlewares.frontend-redirect.redirectRegex.replacement=$${1}localhost/$${2}
+            - traefik.http.middlewares.frontend-redirect.redirectRegex.permanent=true
+            - traefik.http.routers.frontend.middlewares=frontend-redirect
+
+    api:
+        image: ${REGISTRY}/finsly-api:${IMAGE_TAG}
+        networks:
+            - traefik-public
+            - default
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=traefik-public
+            - traefik.http.routers.api.rule=Host(`api.localhost`)
+            - traefik.http.routers.api.entryPoints=http
+            - traefik.http.services.api.loadBalancer.server.port=80
+
+    api-php-fpm:
+        image: ${REGISTRY}/finsly-api-php-fpm:${IMAGE_TAG}
+        environment:
+            APP_ENV: prod
+            APP_DEBUG: 0
+            DB_HOST: api-postgres
+            DB_PORT: 5432
+            DB_USER: app
+            DB_PASSWORD_FILE: /run/secrets/api_db_password
+            DB_NAME: app
+            CACHE_HOST: api-valkey
+            CACHE_PORT: 6379
+            CACHE_USER: default
+            MAILER_HOST: mailer
+            MAILER_PORT: 1025
+            MAILER_USERNAME: app
+            MAILER_PASSWORD_FILE: /run/secrets/api_mailer_password
+            MAILER_FROM_EMAIL: mail@app.test
+            FRONTEND_URL: http://localhost
+            SENTRY_DSN_FILE: /run/secrets/sentry_dsn
+            JWT_ENCRYPTION_KEY_FILE: /run/secrets/jwt_encryption_key
+            JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key
+            JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_private_key
+            OAUTH_CALLBACK_URL: http://api.localhost
+            OAUTH_YANDEX_AUTH_URL: http://wiremock.localhost/oauth.yandex.ru
+            OAUTH_YANDEX_TOKEN_URL: http://wiremock/oauth.yandex.ru
+            OAUTH_YANDEX_API_URL: http://wiremock/login.yandex.ru
+            OAUTH_YANDEX_CLIENT_ID: app
+            OAUTH_YANDEX_CLIENT_SECRET_FILE: /run/secrets/oauth_yandex_client_secret
+            OAUTH_MAILRU_AUTH_URL: http://wiremock.localhost/oauth.mail.ru
+            OAUTH_MAILRU_TOKEN_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_API_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_CLIENT_ID: app
+            OAUTH_MAILRU_CLIENT_SECRET_FILE: /run/secrets/oauth_mailru_client_secret
+            EXCHANGE_RATE_API_URL: http://wiremock/exchangerate-api.com
+            EXCHANGE_RATE_API_KEY_FILE: /run/secrets/exchange_rate_api_key
+        secrets:
+            - api_db_password
+            - api_mailer_password
+            - sentry_dsn
+            - jwt_encryption_key
+            - jwt_public_key
+            - jwt_private_key
+            - oauth_yandex_client_secret
+            - oauth_mailru_client_secret
+            - exchange_rate_api_key
+
+    api-php-cli:
+        image: ${REGISTRY}/finsly-api-php-cli:${IMAGE_TAG}
+        environment:
+            APP_ENV: prod
+            APP_DEBUG: 0
+            DB_HOST: api-postgres
+            DB_PORT: 5432
+            DB_USER: app
+            DB_PASSWORD_FILE: /run/secrets/api_db_password
+            DB_NAME: app
+            CACHE_HOST: api-valkey
+            CACHE_PORT: 6379
+            CACHE_USER: default
+            MAILER_HOST: mailer
+            MAILER_PORT: 1025
+            MAILER_USERNAME: app
+            MAILER_PASSWORD_FILE: /run/secrets/api_mailer_password
+            MAILER_FROM_EMAIL: mail@app.test
+            FRONTEND_URL: http://localhost
+            SENTRY_DSN_FILE: /run/secrets/sentry_dsn
+            JWT_ENCRYPTION_KEY_FILE: /run/secrets/jwt_encryption_key
+            JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key
+            JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_private_key
+            OAUTH_CALLBACK_URL: http://api.localhost
+            OAUTH_YANDEX_AUTH_URL: http://wiremock.localhost/oauth.yandex.ru
+            OAUTH_YANDEX_TOKEN_URL: http://wiremock/oauth.yandex.ru
+            OAUTH_YANDEX_API_URL: http://wiremock/login.yandex.ru
+            OAUTH_YANDEX_CLIENT_ID: app
+            OAUTH_YANDEX_CLIENT_SECRET_FILE: /run/secrets/oauth_yandex_client_secret
+            OAUTH_MAILRU_AUTH_URL: http://wiremock.localhost/oauth.mail.ru
+            OAUTH_MAILRU_TOKEN_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_API_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_CLIENT_ID: app
+            OAUTH_MAILRU_CLIENT_SECRET_FILE: /run/secrets/oauth_mailru_client_secret
+        secrets:
+            - api_db_password
+            - api_mailer_password
+            - sentry_dsn
+            - jwt_encryption_key
+            - jwt_public_key
+            - jwt_private_key
+            - oauth_yandex_client_secret
+            - oauth_mailru_client_secret
+
+    testing-api-php-cli:
+        image: ${REGISTRY}/finsly-testing-api-php-cli:${IMAGE_TAG}
+        environment:
+            APP_ENV: dev
+            APP_DEBUG: 1
+            DB_HOST: api-postgres
+            DB_PORT: 5432
+            DB_USER: app
+            DB_PASSWORD_FILE: /run/secrets/api_db_password
+            DB_NAME: app
+            CACHE_HOST: api-valkey
+            CACHE_PORT: 6379
+            CACHE_USER: default
+            MAILER_HOST: mailer
+            MAILER_PORT: 1025
+            MAILER_USERNAME: app
+            MAILER_PASSWORD_FILE: /run/secrets/api_mailer_password
+            MAILER_FROM_EMAIL: mail@app.test
+            FRONTEND_URL: http://localhost
+            SENTRY_DSN_FILE: /run/secrets/sentry_dsn
+            JWT_ENCRYPTION_KEY_FILE: /run/secrets/jwt_encryption_key
+            JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key
+            JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_private_key
+            OAUTH_CALLBACK_URL: http://api.localhost
+            OAUTH_YANDEX_AUTH_URL: http://wiremock.localhost/oauth.yandex.ru
+            OAUTH_YANDEX_TOKEN_URL: http://wiremock/oauth.yandex.ru
+            OAUTH_YANDEX_API_URL: http://wiremock/login.yandex.ru
+            OAUTH_YANDEX_CLIENT_ID: app
+            OAUTH_YANDEX_CLIENT_SECRET_FILE: /run/secrets/oauth_yandex_client_secret
+            OAUTH_MAILRU_AUTH_URL: http://wiremock.localhost/oauth.mail.ru
+            OAUTH_MAILRU_TOKEN_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_API_URL: http://wiremock/oauth.mail.ru
+            OAUTH_MAILRU_CLIENT_ID: app
+            OAUTH_MAILRU_CLIENT_SECRET_FILE: /run/secrets/oauth_mailru_client_secret
+        secrets:
+            - api_db_password
+            - api_mailer_password
+            - sentry_dsn
+            - jwt_encryption_key
+            - jwt_public_key
+            - jwt_private_key
+            - oauth_yandex_client_secret
+            - oauth_mailru_client_secret
+
+    api-postgres:
+        image: postgres:13.3-alpine3.14
+        environment:
+            POSTGRES_USER: app
+            POSTGRES_PASSWORD_FILE: /run/secrets/api_db_password
+            POSTGRES_DB: app
+        secrets:
+            - api_db_password
+
+    mailer:
+        image: mailhog/mailhog
+
+    wiremock:
+        image: wiremock/wiremock:3x-alpine
+        networks:
+            - traefik-public
+            - default
+        volumes:
+            - ./wiremock:/home/wiremock
+        healthcheck:
+            test: wget --no-verbose --tries=1 --spider http://localhost/__admin/health || exit 1
+        command:
+            - '--port=80'
+            - '--global-response-templating'
+            - '--verbose'
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=traefik-public
+            - traefik.http.routers.wiremock.rule=Host(`wiremock.localhost`)
+            - traefik.http.services.wiremock.loadBalancer.server.port=80
+            - traefik.http.routers.wiremock.entryPoints=http
+
+    cucumber-node-cli:
+        image: ${REGISTRY}/finsly-cucumber-node-cli:${IMAGE_TAG}
+        volumes:
+            - ./cucumber/var:/app/var
+        network_mode: service:traefik
+
+    api-valkey:
+        image: valkey/valkey:8.0.2
+
+secrets:
+    api_db_password:
+        file: ./docker/development/secrets/api_db_password
+    api_mailer_password:
+        file: ./docker/development/secrets/api_mailer_password
+    sentry_dsn:
+        file: ./docker/development/secrets/sentry_dsn
+    jwt_encryption_key:
+        file: ./docker/development/secrets/jwt_encryption_key
+    jwt_public_key:
+        file: ./docker/development/secrets/jwt_public_key
+    jwt_private_key:
+        file: ./docker/development/secrets/jwt_private_key
+    oauth_yandex_client_secret:
+        file: ./docker/development/secrets/oauth_yandex_client_secret
+    oauth_mailru_client_secret:
+        file: ./docker/development/secrets/oauth_mailru_client_secret
+    exchange_rate_api_key:
+        file: ./docker/development/secrets/exchange_rate_api_key
+
+networks:
+    traefik-public:
+        name: traefik-public
