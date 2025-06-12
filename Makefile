@@ -5,6 +5,8 @@ ifndef cmd
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
+# even lighter command just to restart container and vite server for frontend
+i: down up-detached npm-run-dev-detached
 #light init without images rebuild for faster refreshment
 ini: down up-detached composer-i recreate-test-db migrate-fresh seed clear-cache npm-i npm-run-dev-detached
 
