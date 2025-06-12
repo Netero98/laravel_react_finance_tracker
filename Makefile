@@ -2,11 +2,11 @@
 ini: ini-ci frontend-ready
 init: init-ci frontend-ready
 init-ci: docker-down-clear \
-	api-clear frontend-clear cucumber-clear \
+	clear-storage frontend-clear cucumber-clear \
 	docker-pull docker-build docker-up \
 	api-init frontend-init cucumber-init
 ini-ci: docker-down-clear \
-	api-clear frontend-clear cucumber-clear \
+	clear-storage frontend-clear cucumber-clear \
 	docker-up api-init frontend-init cucumber-init
 up: docker-up
 down: docker-down
@@ -32,8 +32,9 @@ docker-pull:
 docker-build:
 	docker compose build --pull
 
-api-clear:
-	docker run --rm -v ${PWD}/api:/app -w /app alpine sh -c 'rm -rf var/cache/* var/log/* var/test/*'
+clear-storage:
+	find storage -type f -not -name .gitignore -delete
+	find storage -type d -empty -delete
 
 api-init: api-permissions api-composer-install api-wait-db api-migrations api-fixtures
 
