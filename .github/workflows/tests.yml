@@ -40,9 +40,8 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-#      todo: configure test environment for ci cd via docker
       - name: Copy Environment File
-        run: cp .env.local .env
+        run: cp .env.example .env
 
       - name: Generate Application Key
         run: php artisan key:generate

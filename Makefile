@@ -5,75 +5,45 @@ ifndef cmd
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
-# even lighter command just to restart container and vite server for frontend
-i: down up-detached npm-run-dev-detached
 #light init without images rebuild for faster refreshment
-ini: down up-detached composer-i recreate-test-db migrate-fresh seed clear-cache npm-i npm-run-dev-detached
+ini: prepare-env down up-detached composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
 
-init: down up-detached-build composer-i recreate-test-db migrate-fresh seed clear-cache npm-i npm-run-dev-detached
+init: prepare-env down up-detached-build composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
 
-# Had to copy env file because dusk demand it, it doesnt care that envs already exist in container
-ini-testing: down up-detached-testing composer-i recreate-test-db migrate-fresh clear-cache npm-i npm-run-build copy-env-dusk
-
+prepare-env:
+	@if [ ! -f .env ]; then \
+		echo "Copying .env.example to .env"; \
+		cp .env.example .env; \
+	else \
+		echo ".env already exists. Skipping."; \
+	fi
 up-detached-build:
-	COMPOSE_BAKE=true docker compose -f  compose.dev.yaml --env-file .env.local up -d --build
-
+	docker compose -f compose.dev.yaml up -d --build
 up-detached:
-	docker compose -f compose.dev.yaml --env-file .env.local up -d
-
-up-detached-testing:
-	docker compose -f compose.dev.yaml --env-file .env.dusk.testing up -d
-
+	docker compose -f compose.dev.yaml up -d
 up:
-	docker compose -f compose.dev.yaml --env-file .env.local up
-
+	docker compose -f compose.dev.yaml up
 composer-i:
 	make exec cmd="composer install"
-
 migrate-fresh:
 	make exec cmd="php artisan migrate:fresh"
-
 seed:
 	make exec cmd="php artisan db:seed"
-
-npm-run-build:
-	make exec cmd="npm run build"
-
-app-key-gen: #not used, left for occasional use
+app-key-gen:
 	make exec cmd="php artisan key:generate"
-
 npm-i:
 	make exec cmd="npm install"
-
 npm-run-dev-detached:
 	make exec cmd="npm run dev -d"
-
 down:
-	docker compose -f compose.dev.yaml --env-file .env.local down --remove-orphans > /dev/null 2>&1 && echo "Containers stopped and removed."
-
-recreate-test-db:
+	docker compose -f compose.dev.yaml down
+create-test-db:
 	make exec cmd="php artisan app:recreate-test-database"
-
 clear-cache:
 	make exec cmd="php artisan cache:clear"
 	make exec cmd="php artisan config:clear"
 	make exec cmd="php artisan route:clear"
 	make exec cmd="php artisan view:clear"
 	make exec cmd="php artisan event:clear"
-
-check:
-	make ini-testing
-	rm -f public/hot
-	make exec cmd="php artisan test --parallel --recreate-databases" || { EXIT_CODE=$$?; make delete-temp-env; make down; exit $$EXIT_CODE; }
-	make delete-temp-env
-	make down
-
-printenv-workspace:
-	docker compose -f compose.dev.yaml exec workspace bash -lc printenv
-
-copy-env-dusk:
-	#docker compose -f compose.dev.yaml --env-file .env.dusk.testing exec workspace cp .env.dusk.testing .env
-	cp .env.dusk.testing .env
-
-delete-temp-env:
-	rm -f .env
+test:
+	make exec cmd="php artisan test --parallel --recreate-databases"

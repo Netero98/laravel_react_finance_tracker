@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Transaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+uses(RefreshDatabase::class);
+
 test('guests cannot access the finance dashboard', function () {
     $this->get('/dashboard')->assertRedirect('/login');
 });
