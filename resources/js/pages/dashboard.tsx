@@ -469,7 +469,7 @@ export default function Dashboard({
                             }}
                             placeholder="Select..."
                             searchPlaceholder="Search..."
-                            className="w-40 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            className="w-30"
                         />
                         <Button
                             variant="outline"
