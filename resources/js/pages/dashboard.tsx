@@ -22,6 +22,7 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { formatCurrency } from '@/utils/formatters';
 import { Combobox } from '@/components/ui/combobox';
 import { Button } from '@/components/ui/button';
+import AppearanceToggleTab from '@/components/appearance-tabs';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -497,6 +498,7 @@ export default function Dashboard({
                         >
                             Reset Layout
                         </Button>
+                        <AppearanceToggleTab/>
                     </div>
                 </div>
 
