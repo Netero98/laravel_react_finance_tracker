@@ -16,8 +16,14 @@ Coolify. Steps to deploy from scratch:
 - Map domain name to nginx container (web) like https://finsly.ru
 - Add environments to resource, example - .env.example.
 - Configure docker compose build and up commands like this:
+- build:
 ```
 COMPOSE_BAKE=true docker compose -f ./compose.prod.yaml build --pull
+```
+
+- up:
+```
 docker compose -f ./compose.prod.yaml up -d --build
 ```
+
 -Click deploy. Redeploy if need, front is rebuilt and all works fine BUT with a little downtime
