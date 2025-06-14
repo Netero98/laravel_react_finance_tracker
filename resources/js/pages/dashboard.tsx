@@ -17,10 +17,11 @@ import { Head } from '@inertiajs/react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Settings, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { formatCurrency } from '@/utils/formatters';
 import { Combobox } from '@/components/ui/combobox';
+import { Button } from '@/components/ui/button';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -470,24 +471,20 @@ export default function Dashboard({
                             searchPlaceholder="Search..."
                             className="w-40 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                         />
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={() => setShowSettings(!showSettings)}
-                            className="rounded-md bg-gray-200 dark:bg-gray-700 px-3 py-1 text-sm flex items-center space-x-1 hover:bg-gray-300 dark:hover:bg-gray-600"
                         >
-                            <Settings className="h-4 w-4" />
-                            <span>Charts</span>
-                        </button>
-                        <button
+                            <span>Choose charts</span>
+                        </Button>
+                        <Button
+                            variant="outline"
                             onClick={() => setIsDraggable(!isDraggable)}
-                            className={`rounded-md px-3 py-1 text-sm ${
-                                isDraggable
-                                ? 'bg-green-500 text-white hover:bg-green-600'
-                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                            }`}
                         >
                             {isDraggable ? 'Dragging On' : 'Drag Charts'}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="outline"
                             onClick={() => {
                                 // Reset layout
                                 setLayouts(defaultLayouts);
@@ -497,10 +494,9 @@ export default function Dashboard({
                                 localStorage.setItem('dashboardLayouts', JSON.stringify(defaultLayouts));
                                 localStorage.setItem('dashboardVisibleCharts', JSON.stringify(allChartIds));
                             }}
-                            className="rounded-md bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
                         >
                             Reset Layout
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -508,13 +504,14 @@ export default function Dashboard({
                 {showSettings && (
                     <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Chart Settings</h3>
-                            <button
+                            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Available charts</h3>
+                            <Button
+                                variant="outline"
                                 onClick={() => setShowSettings(false)}
                                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                             >
                                 <X className="h-5 w-5" />
-                            </button>
+                            </Button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                             {availableCharts.map(chart => (
