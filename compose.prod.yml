@@ -5,8 +5,6 @@ services:
       dockerfile: ./docker/common/Dockerfile
       target: nginx-production
     restart: unless-stopped
-    ports:
-      - "9000:80"
     networks:
       - laravel-production
     depends_on:
