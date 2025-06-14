@@ -1,9 +1,12 @@
 # Use this way: make exec cmd="php artisan migrate:fresh"
-exec:
-ifndef cmd
-	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan migrate:fresh")
-endif
-	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
+#exec:
+#ifndef cmd
+#	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan migrate:fresh")
+#endif
+#	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
+
+run:
+	docker compose -f compose.dev.yaml --env-file .env.local run workspace bash -rm -lc "$(cmd)"
 
 # even lighter command just to restart container and vite server for frontend
 i: down up-detached npm-run-dev-detached
@@ -28,51 +31,53 @@ up:
 	docker compose -f compose.dev.yaml --env-file .env.local up
 
 composer-i:
-	make exec cmd="composer install"
+	make run cmd="composer install"
 
 migrate-fresh:
-	make exec cmd="php artisan migrate:fresh"
+	make run cmd="php artisan migrate:fresh"
 
 seed:
-	make exec cmd="php artisan db:seed"
+	make run cmd="php artisan db:seed"
 
 npm-run-build:
-	make exec cmd="npm run build"
+	make run cmd="npm run build"
 
 app-key-gen: #not used, left for occasional use
-	make exec cmd="php artisan key:generate"
+	make run cmd="php artisan key:generate"
 
 npm-i:
-	make exec cmd="npm install"
+	make run cmd="npm install"
 
 npm-run-dev-detached:
-	make exec cmd="npm run dev -d"
+	make run cmd="npm run dev -d"
 
 down:
 	docker compose -f compose.dev.yaml --env-file .env.local down --remove-orphans > /dev/null 2>&1 && echo "Containers stopped and removed."
 
 recreate-test-db:
-	make exec cmd="php artisan app:recreate-test-database"
+	make run cmd="php artisan app:recreate-test-database"
 
 clear-cache:
-	make exec cmd="php artisan cache:clear"
-	make exec cmd="php artisan config:clear"
-	make exec cmd="php artisan route:clear"
-	make exec cmd="php artisan view:clear"
-	make exec cmd="php artisan event:clear"
+	make run cmd="php artisan cache:clear"
+	make run cmd="php artisan config:clear"
+	make run cmd="php artisan route:clear"
+	make run cmd="php artisan view:clear"
+	make run cmd="php artisan event:clear"
 
 check:
 	make ini-testing
 	rm -f public/hot
-	make exec cmd="php artisan test --parallel --recreate-databases" || { EXIT_CODE=$$?; make delete-temp-env; make down; exit $$EXIT_CODE; }
+	make run cmd="php artisan test --parallel --recreate-databases" || { EXIT_CODE=$$?; make clear-after-e2e; exit $$EXIT_CODE; }
+	make clear-after-e2e
+
+clear-after-e2e:
 	make delete-temp-env
 	make down
 
 printenv-workspace:
-	docker compose -f compose.dev.yaml exec workspace bash -lc printenv
+	make run cmd="printenv"
 
 copy-env-dusk:
-	#docker compose -f compose.dev.yaml --env-file .env.dusk.testing exec workspace cp .env.dusk.testing .env
 	cp .env.dusk.testing .env
 
 delete-temp-env:
