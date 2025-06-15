@@ -58,11 +58,11 @@ app-key-gen:
 npm-i:
 	make run cmd="npm install"
 npm-run-dev:
-	make run cmd="npm run dev"
+	make exec cmd="npm run dev"
 down:
 	docker compose -f compose.dev.yaml down
 create-test-db:
-	make exec cmd="php artisan app:recreate-test-database"
+	make run cmd="php artisan app:recreate-test-database"
 clear-cache:
 	make run cmd="php artisan cache:clear"
 	make run cmd="php artisan config:clear"
