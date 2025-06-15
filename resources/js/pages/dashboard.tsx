@@ -23,6 +23,8 @@ import { formatCurrency } from '@/utils/formatters';
 import { Combobox } from '@/components/ui/combobox';
 import { Button } from '@/components/ui/button';
 import AppearanceToggleTab from '@/components/appearance-tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -454,9 +456,23 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
+            <div className="md:hidden p-5 z-2 flex justify-end">
+                <div >
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="bg-background p-2 rounded-sm outline-1 outline-secondary hover:bg-secondary">Open</DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-background">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>Profile</DropdownMenuItem>
+                            <DropdownMenuItem>Billing</DropdownMenuItem>
+                            <DropdownMenuItem>Team</DropdownMenuItem>
+                            <DropdownMenuItem>Subscription</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="mb-4 flex items-center justify-between gap-5">
-                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Dashboard</h2>
+                <div className="hidden md:flex mb-4 items-center justify-between gap-5">
                     <div className="flex flex-wrap gap-2">
                         <Combobox
                             options={Object.keys(exchangeRates).map(currency => ({
