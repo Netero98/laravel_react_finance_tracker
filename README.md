@@ -20,5 +20,5 @@ Coolify. Steps to deploy from scratch:
 COMPOSE_BAKE=true docker compose -f ./compose.prod.yaml build --pull
 docker compose -f ./compose.prod.yaml up -d --build
 ```
--Click deploy. Redeploy if need, front is rebuilt and all works fine BUT with a little downtime
+-Click deploy. Redeploy if need, front is rebuilt and all works fine BUT with a little downtime. Sometimes redeploy works so that site isn't available. Then stop app and deploy from scratch. It should help.
 

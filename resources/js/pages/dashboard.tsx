@@ -519,7 +519,7 @@ export default function Dashboard({
 
                 {/* Settings Panel */}
                 {showSettings && (
-                    <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+                    <div className="mb-4 p-4 bg-white dark:bg-sidebar rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
                         <div className="flex justify-between items-center mb-2">
                             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Available charts</h3>
                             <Button
@@ -550,7 +550,7 @@ export default function Dashboard({
                 )}
 
                 {visibleCharts.length === 0 ? (
-                    <div className="flex justify-center items-center p-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-center items-center p-8 bg-white dark:bg-sidebar rounded-xl border border-gray-200 dark:border-gray-700">
                         <p className="text-gray-500 dark:text-gray-400">No charts selected. Use the Charts button to select charts to display.</p>
                     </div>
                 ) : (
@@ -569,7 +569,7 @@ export default function Dashboard({
                         {visibleCharts.includes('balance') && (
                             <div
                                 key="balance"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance ({currentCurrencyData.chosenCurrency})</h3>
@@ -583,7 +583,7 @@ export default function Dashboard({
                         {visibleCharts.includes('wallet') && (
                             <div
                                 key="wallet"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution ({currentCurrencyData.chosenCurrency})</h3>
@@ -597,7 +597,7 @@ export default function Dashboard({
                         {visibleCharts.includes('expenses') && (
                             <div
                                 key="expenses"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses ({currentCurrencyData.chosenCurrency})</h3>
@@ -624,7 +624,7 @@ export default function Dashboard({
                         {visibleCharts.includes('income') && (
                             <div
                                 key="income"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income ({currentCurrencyData.chosenCurrency})</h3>
@@ -651,7 +651,7 @@ export default function Dashboard({
                         {visibleCharts.includes('history') && (
                             <div
                                 key="history"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800"
+                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar "
                             >
                                 <motion.div style={{ rotate }}>
                                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history ({currentCurrencyData.chosenCurrency})</h3>
