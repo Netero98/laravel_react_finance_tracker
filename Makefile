@@ -1,18 +1,9 @@
-# Use this way: make exec cmd="php artisan migrate:fresh"
-exec:
-ifndef cmd
-	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan")
-endif
-	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
-
 run:
 ifndef cmd
 	$(error Please provide a command via cmd, e.g. make run cmd="php artisan")
 endif
-	docker compose -f compose.dev.yaml run --rm workspace bash -lc "$(cmd)"
+	docker compose -f compose.dev.yaml run --rm workspace-cli bash -lc "$(cmd)"
 
-
-#light init without images rebuild for faster refreshment
 ini:
 	make prepare-env
 	make down
@@ -31,8 +22,6 @@ prepare-running-containers:
 	make migrate-fresh
 	make seed app-key-gen
 	make clear-cache
-	make npm-i
-	make npm-run-dev
 
 prepare-env:
 	@if [ ! -f .env ]; then \
@@ -60,7 +49,7 @@ npm-i:
 npm-run-dev:
 	make exec cmd="npm run dev"
 down:
-	docker compose -f compose.dev.yaml down
+	docker compose -f compose.dev.yaml down --remove-orphans
 create-test-db:
 	make run cmd="php artisan app:recreate-test-database"
 clear-cache:
