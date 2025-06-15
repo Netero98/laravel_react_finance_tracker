@@ -23,8 +23,7 @@ import { formatCurrency } from '@/utils/formatters';
 import { Combobox } from '@/components/ui/combobox';
 import { Button } from '@/components/ui/button';
 import AppearanceToggleTab from '@/components/appearance-tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
