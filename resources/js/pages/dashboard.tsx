@@ -514,7 +514,6 @@ export default function Dashboard({
                         >
                             Reset Layout
                         </Button>
-                        <AppearanceToggleTab/>
                     </div>
                 </div>
 
