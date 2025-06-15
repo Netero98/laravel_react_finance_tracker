@@ -11,9 +11,9 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: PropsWi
         <AppShell variant="sidebar">
             <AppSidebar />
             <AppContent variant="sidebar">
-                <div className="flex justify-between flex-wrap items-center mr-5">
+                <div className="flex justify-between flex-wrap items-center">
                     <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                    <AppearanceToggleTab className="h-10"/>
+                    <AppearanceToggleTab className="h-10 mx-5"/>
                 </div>
                 {children}
             </AppContent>
