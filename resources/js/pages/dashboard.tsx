@@ -458,7 +458,7 @@ export default function Dashboard({
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="md:flex mb-4 items-center justify-between gap-5">
-                    <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
                         <Combobox
                             options={Object.keys(exchangeRates).map(currency => ({
                                 value: currency,
