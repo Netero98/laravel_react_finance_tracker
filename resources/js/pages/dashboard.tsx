@@ -24,6 +24,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Button } from '@/components/ui/button';
 import AppearanceToggleTab from '@/components/appearance-tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { BurgerMenuIcon } from '@/components/ui/burger-menu-icon';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -456,19 +457,19 @@ export default function Dashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="md:hidden p-5 z-2 flex justify-end">
-                <div >
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="bg-background p-2 rounded-sm outline-1 outline-secondary hover:bg-secondary">Open</DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-background">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>Profile</DropdownMenuItem>
-                            <DropdownMenuItem>Billing</DropdownMenuItem>
-                            <DropdownMenuItem>Team</DropdownMenuItem>
-                            <DropdownMenuItem>Subscription</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="bg-background hover:bg-secondary p-2 rounded-sm outline-1 outline-secondary">
+                        <BurgerMenuIcon size={24} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-background">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                        <DropdownMenuItem>Billing</DropdownMenuItem>
+                        <DropdownMenuItem>Team</DropdownMenuItem>
+                        <DropdownMenuItem>Subscription</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="hidden md:flex mb-4 items-center justify-between gap-5">
