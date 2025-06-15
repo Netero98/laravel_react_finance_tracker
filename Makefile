@@ -6,9 +6,26 @@ endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
 
 #light init without images rebuild for faster refreshment
-ini: prepare-env down up-detached composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
+ini:
+	make prepare-env
+	make down
+	make up-detached
+	make prepare-running-containers
 
-init: prepare-env down up-detached-build composer-i create-test-db migrate-fresh seed app-key-gen clear-cache npm-i npm-run-dev-detached
+init:
+	make prepare-env
+	make down
+	make up-detached-build
+	make prepare-running-containers
+
+prepare-running-containers:
+	make composer-i
+	make create-test-db
+	make migrate-fresh
+	make seed app-key-gen
+	make clear-cache
+	make npm-i
+	make npm-run-dev-detached
 
 prepare-env:
 	@if [ ! -f .env ]; then \
