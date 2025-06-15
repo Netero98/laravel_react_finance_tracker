@@ -13,6 +13,7 @@ ini:
 init:
 	make prepare-env
 	make down
+	make build-pull
 	make up-detached-build
 	make prepare-running-containers
 
@@ -30,6 +31,8 @@ prepare-env:
 	else \
 		echo ".env already exists. Skipping."; \
 	fi
+build-pull:
+	docker compose -f compose.dev.yaml build --pull
 up-detached-build:
 	docker compose -f compose.dev.yaml up -d --build
 up-detached:
