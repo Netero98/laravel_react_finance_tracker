@@ -456,24 +456,9 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="md:hidden p-5 z-2 flex justify-end">
-                <DropdownMenu>
-                    <DropdownMenuTrigger className="bg-background hover:bg-secondary p-2 rounded-sm outline-1 outline-secondary">
-                        <BurgerMenuIcon size={24} />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-background">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Billing</DropdownMenuItem>
-                        <DropdownMenuItem>Team</DropdownMenuItem>
-                        <DropdownMenuItem>Subscription</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="hidden md:flex mb-4 items-center justify-between gap-5">
-                    <div className="flex flex-wrap gap-2">
+                <div className="md:flex mb-4 items-center justify-between gap-5">
+                    <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                         <Combobox
                             options={Object.keys(exchangeRates).map(currency => ({
                                 value: currency,
@@ -486,7 +471,6 @@ export default function Dashboard({
                             }}
                             placeholder="Select..."
                             searchPlaceholder="Search..."
-                            className="w-30"
                         />
                         <Button
                             variant="outline"
