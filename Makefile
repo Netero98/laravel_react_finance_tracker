@@ -1,9 +1,16 @@
 # Use this way: make exec cmd="php artisan migrate:fresh"
 exec:
 ifndef cmd
-	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan migrate:fresh")
+	$(error Please provide a command via cmd, e.g. make exec cmd="php artisan")
 endif
 	docker compose -f compose.dev.yaml exec workspace bash -lc "$(cmd)"
+
+run:
+ifndef cmd
+	$(error Please provide a command via cmd, e.g. make run cmd="php artisan")
+endif
+	docker compose -f compose.dev.yaml run --rm workspace bash -lc "$(cmd)"
+
 
 #light init without images rebuild for faster refreshment
 ini:
@@ -25,7 +32,7 @@ prepare-running-containers:
 	make seed app-key-gen
 	make clear-cache
 	make npm-i
-	make npm-run-dev-detached
+	make npm-run-dev
 
 prepare-env:
 	@if [ ! -f .env ]; then \
@@ -41,26 +48,26 @@ up-detached:
 up:
 	docker compose -f compose.dev.yaml up
 composer-i:
-	make exec cmd="composer install"
+	make run cmd="composer install"
 migrate-fresh:
-	make exec cmd="php artisan migrate:fresh"
+	make run cmd="php artisan migrate:fresh"
 seed:
-	make exec cmd="php artisan db:seed"
+	make run cmd="php artisan db:seed"
 app-key-gen:
-	make exec cmd="php artisan key:generate"
+	make run cmd="php artisan key:generate"
 npm-i:
-	make exec cmd="npm install"
-npm-run-dev-detached:
-	make exec cmd="npm run dev -d"
+	make run cmd="npm install"
+npm-run-dev:
+	make run cmd="npm run dev"
 down:
 	docker compose -f compose.dev.yaml down
 create-test-db:
 	make exec cmd="php artisan app:recreate-test-database"
 clear-cache:
-	make exec cmd="php artisan cache:clear"
-	make exec cmd="php artisan config:clear"
-	make exec cmd="php artisan route:clear"
-	make exec cmd="php artisan view:clear"
-	make exec cmd="php artisan event:clear"
+	make run cmd="php artisan cache:clear"
+	make run cmd="php artisan config:clear"
+	make run cmd="php artisan route:clear"
+	make run cmd="php artisan view:clear"
+	make run cmd="php artisan event:clear"
 test:
-	make exec cmd="php artisan test --parallel --recreate-databases"
+	make run cmd="php artisan test --parallel"
