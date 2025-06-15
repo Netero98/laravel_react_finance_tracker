@@ -97,26 +97,290 @@ export default function Dashboard({
 
     // Define the initial layouts for different breakpoints
     const defaultLayouts = {
-        lg: [
-            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 2, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 4, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 2, y: 1, w: 4, h: 2, minW: 2, minH: 1 }
+        "lg": [
+            {
+                "w": 2,
+                "h": 1,
+                "x": 4,
+                "y": 0,
+                "i": "balance",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 0,
+                "y": 0,
+                "i": "wallet",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 3,
+                "x": 4,
+                "y": 1,
+                "i": "expenses",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 2,
+                "y": 0,
+                "i": "income",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 4,
+                "h": 2,
+                "x": 0,
+                "y": 2,
+                "i": "history",
+                "minW": 2,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            }
         ],
-        md: [
-            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 2, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 2, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 2, w: 4, h: 2, minW: 2, minH: 1 }
+        "md": [
+            {
+                "w": 2,
+                "h": 1,
+                "x": 0,
+                "y": 0,
+                "i": "balance",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 2,
+                "y": 0,
+                "i": "wallet",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 3,
+                "x": 0,
+                "y": 1,
+                "i": "expenses",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 2,
+                "y": 2,
+                "i": "income",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 4,
+                "h": 2,
+                "x": 0,
+                "y": 4,
+                "i": "history",
+                "minW": 2,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            }
         ],
-        sm: [
-            { i: 'balance', x: 0, y: 0, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'wallet', x: 0, y: 1, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'expenses', x: 0, y: 2, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'income', x: 0, y: 3, w: 2, h: 1, minW: 1, minH: 1 },
-            { i: 'history', x: 0, y: 4, w: 2, h: 2, minW: 1, minH: 1 }
+        "sm": [
+            {
+                "w": 1,
+                "h": 1,
+                "x": 0,
+                "y": 0,
+                "i": "balance",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 2,
+                "x": 1,
+                "y": 0,
+                "i": "wallet",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 3,
+                "x": 0,
+                "y": 1,
+                "i": "expenses",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 2,
+                "x": 1,
+                "y": 2,
+                "i": "income",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 0,
+                "y": 4,
+                "i": "history",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            }
+        ],
+        "xs": [
+            {
+                "w": 1,
+                "h": 1,
+                "x": 0,
+                "y": 0,
+                "i": "balance",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 2,
+                "x": 0,
+                "y": 1,
+                "i": "wallet",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 3,
+                "x": 1,
+                "y": 0,
+                "i": "expenses",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 2,
+                "x": 1,
+                "y": 3,
+                "i": "income",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 1,
+                "h": 2,
+                "x": 0,
+                "y": 3,
+                "i": "history",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            }
+        ],
+        "xxs": [
+            {
+                "w": 2,
+                "h": 2,
+                "x": 0,
+                "y": 0,
+                "i": "balance",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 0,
+                "y": 2,
+                "i": "wallet",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 1,
+                "x": 0,
+                "y": 4,
+                "i": "expenses",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 1,
+                "x": 0,
+                "y": 5,
+                "i": "income",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            },
+            {
+                "w": 2,
+                "h": 2,
+                "x": 0,
+                "y": 6,
+                "i": "history",
+                "minW": 1,
+                "minH": 1,
+                "moved": false,
+                "static": false
+            }
         ]
     };
 
