@@ -328,7 +328,7 @@ export default function Dashboard({
         "xxs": [
             {
                 "w": 2,
-                "h": 2,
+                "h": 1,
                 "x": 0,
                 "y": 0,
                 "i": "balance",
@@ -341,7 +341,7 @@ export default function Dashboard({
                 "w": 2,
                 "h": 2,
                 "x": 0,
-                "y": 2,
+                "y": 1,
                 "i": "wallet",
                 "minW": 1,
                 "minH": 1,
@@ -350,9 +350,9 @@ export default function Dashboard({
             },
             {
                 "w": 2,
-                "h": 1,
+                "h": 2,
                 "x": 0,
-                "y": 4,
+                "y": 3,
                 "i": "expenses",
                 "minW": 1,
                 "minH": 1,
@@ -361,7 +361,7 @@ export default function Dashboard({
             },
             {
                 "w": 2,
-                "h": 1,
+                "h": 2,
                 "x": 0,
                 "y": 5,
                 "i": "income",
@@ -374,7 +374,7 @@ export default function Dashboard({
                 "w": 2,
                 "h": 2,
                 "x": 0,
-                "y": 6,
+                "y": 7,
                 "i": "history",
                 "minW": 1,
                 "minH": 1,
