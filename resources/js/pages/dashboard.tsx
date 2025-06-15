@@ -724,6 +724,7 @@ export default function Dashboard({
                 <div className="md:flex mb-4 items-center justify-between gap-5">
                     <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
                         <Combobox
+                            className="bg-card"
                             options={Object.keys(exchangeRates).map(currency => ({
                                 value: currency,
                                 label: currency
@@ -737,18 +738,21 @@ export default function Dashboard({
                             searchPlaceholder="Search..."
                         />
                         <Button
+                            className="bg-card"
                             variant="outline"
                             onClick={() => setShowSettings(!showSettings)}
                         >
                             <span>Choose charts</span>
                         </Button>
                         <Button
+                            className="bg-card"
                             variant="outline"
                             onClick={() => setIsDraggable(!isDraggable)}
                         >
                             {isDraggable ? 'Dragging On' : 'Drag Charts'}
                         </Button>
                         <Button
+                            className="bg-card"
                             variant="outline"
                             onClick={() => {
                                 // Reset layout
@@ -767,13 +771,13 @@ export default function Dashboard({
 
                 {/* Settings Panel */}
                 {showSettings && (
-                    <div className="mb-4 p-4 bg-white dark:bg-sidebar rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+                    <div className="mb-4 p-4 bg-card rounded-xl border shadow-md">
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Available charts</h3>
+                            <h3 className="text-lg font-medium text-foreground">Available charts</h3>
                             <Button
                                 variant="outline"
                                 onClick={() => setShowSettings(false)}
-                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                className="text-foreground"
                             >
                                 <X className="h-5 w-5" />
                             </Button>
@@ -788,7 +792,7 @@ export default function Dashboard({
                                         onChange={() => toggleChartVisibility(chart.id)}
                                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />
-                                    <label htmlFor={`chart-${chart.id}`} className="text-sm text-gray-700 dark:text-gray-300">
+                                    <label htmlFor={`chart-${chart.id}`} className="text-sm text-foreground">
                                         {chart.title}
                                     </label>
                                 </div>
@@ -798,8 +802,8 @@ export default function Dashboard({
                 )}
 
                 {visibleCharts.length === 0 ? (
-                    <div className="flex justify-center items-center p-8 bg-white dark:bg-sidebar rounded-xl border border-gray-200 dark:border-gray-700">
-                        <p className="text-gray-500 dark:text-gray-400">No charts selected. Use the Charts button to select charts to display.</p>
+                    <div className="flex justify-center items-center p-8 bg-card rounded-xl border border-foreground">
+                        <p className="text-foreground">No charts selected. Use the Charts button to select charts to display.</p>
                     </div>
                 ) : (
                     <ResponsiveGridLayout
@@ -817,10 +821,10 @@ export default function Dashboard({
                         {visibleCharts.includes('balance') && (
                             <div
                                 key="balance"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
+                                className="relative border border-border overflow-hidden rounded-xl p-4 bg-card"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Balance ({currentCurrencyData.chosenCurrency})</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">Current Balance ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="flex justify-center items-center h-[calc(100%-40px)]">
                                     <p className="text-3xl font-bold text-green-600">{formatCurrency(currentCurrencyData.currentBalanceInChosenCurrency)}</p>
@@ -831,10 +835,10 @@ export default function Dashboard({
                         {visibleCharts.includes('wallet') && (
                             <div
                                 key="wallet"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
+                                className="border border-border relative overflow-hidden rounded-xl p-4 bg-card"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Wallet Distribution ({currentCurrencyData.chosenCurrency})</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">Wallet Distribution ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="h-[calc(100%-40px)]">
                                     <Pie data={pieChartData} options={pieChartOptions} />
@@ -845,10 +849,10 @@ export default function Dashboard({
                         {visibleCharts.includes('expenses') && (
                             <div
                                 key="expenses"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
+                                className="relative border border-border overflow-hidden rounded-xl p-4 bg-card"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Expenses ({currentCurrencyData.chosenCurrency})</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">Current Month Expenses ({currentCurrencyData.chosenCurrency})</h3>
                                     {currentCurrencyData.currentMonthExpensesInChosenCurrency.length > 0 && (
                                         <div className="flex justify-center items-center mb-2">
                                             <p className="text-xl font-bold text-red-600">
@@ -872,10 +876,10 @@ export default function Dashboard({
                         {visibleCharts.includes('income') && (
                             <div
                                 key="income"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar"
+                                className="border border-border relative overflow-hidden rounded-xl p-4 bg-card"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Current Month Income ({currentCurrencyData.chosenCurrency})</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">Current Month Income ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>{currentCurrencyData.currentMonthIncomeInChosenCurrency.length > 0 && (
                                     <div className="flex justify-center items-center mb-2">
                                         <p className="text-xl font-bold text-green-600">
@@ -899,10 +903,10 @@ export default function Dashboard({
                         {visibleCharts.includes('history') && (
                             <div
                                 key="history"
-                                className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border p-4 bg-white dark:bg-sidebar "
+                                className="border border-border relative overflow-hidden rounded-xl p-4 bg-card"
                             >
                                 <motion.div style={{ rotate }}>
-                                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Balance history ({currentCurrencyData.chosenCurrency})</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">Balance history ({currentCurrencyData.chosenCurrency})</h3>
                                 </motion.div>
                                 <div className="h-[calc(100%-40px)]">
                                     <Line data={lineChartData} options={lineChartOptions} />
